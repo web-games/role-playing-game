@@ -1,30 +1,45 @@
 import DiamondTiledMap from "./DiamondTiledMap";
-import {ElementData} from "./ElementData";
+import {NodeData} from "./NodeData";
 import {Main} from "./Main";
 
 export default class Element extends Phaser.GameObjects.Container {
   scene: Main
   skin: Phaser.GameObjects.Image
+  mdata: NodeData
   startX
   startY
-  mdata: ElementData
+  currentRow
+  currentCol
   h: number
 
-  constructor(scene, data: ElementData) {
+  constructor(scene, data: NodeData) {
     super(scene)
     this.mdata = data
+
+    let {originX,originY} = data
+    this.currentRow = originY
+    this.currentCol = originX
+    let p = this.getMapXY(this.currentRow,this.currentCol)
+    this.x = p.x
+    this.y = p.y
   }
 
-  tiledmap() {
-    let dtMap = new DiamondTiledMap(this.scene, this.mdata)
+  tiledmap(mdata?:any) {
+    mdata = mdata || this.mdata
+    let dtMap = new DiamondTiledMap(this.scene, mdata)
     this.add(dtMap)
+
+    console.log(mdata.children)
+    if(mdata.children){
+      this.tiledmap(mdata.children)
+    }
   }
 
   display() {
     let {anchorX, anchorY, originX, originY, row, col} = this.mdata
     // this.skin = this.scene.add.image(0, (maxH / 2) * this.h, 'jqr')
-    this.skin = this.scene.add.image(0, 0, 'jqr')
-    // this.skin.alpha = 0.5;
+    console.log(this.mdata.img)
+    this.skin = this.scene.add.image(0, 0, this.mdata.img)
 
     let {width, height} = this.skin
     let ax = anchorX / width
@@ -68,12 +83,20 @@ export default class Element extends Phaser.GameObjects.Container {
       this.x = this.startX + dragX;
       this.y = this.startY + dragY;
     });
+
     this.skin.on('dragend', (pointer: any, gameObject: any, dragX: any, dragY: any) => {
-      let {rowNum, columnNum} = this.scene.stMap.mapData.screen2map(this.x + this.scene.stMap.mapData.tileWidth/2, this.y + this.scene.stMap.mapData.tileHeight/2)
-      let {x, y} = this.scene.stMap.mapData.map2screen(rowNum, columnNum)
+      let {x, y} = this.getGridXY()
       window['TweenMax'].to(this, 0.3, {x,y, ease: window['Power2'].easeOut})
     })
+  }
 
+  getMapXY(row,col){
+    return this.scene.stMap.mapData.map2screen(row,col)
+  }
+
+  getGridXY(){
+    let {rowNum, columnNum} = this.scene.stMap.mapData.screen2map(this.x + this.scene.stMap.mapData.tileWidth/2, this.y + this.scene.stMap.mapData.tileHeight/2)
+    return this.scene.stMap.mapData.map2screen(rowNum, columnNum)
   }
 
   over() {
