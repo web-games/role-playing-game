@@ -1,0 +1,222 @@
+import StaggeredTiledMap from "./StaggeredTiledMap";
+import Element from './Element'
+import {userDataList} from './data'
+
+let pack = {
+    files: [
+        {type: 'image', key: 'bar', url: './assets/images/loadBar.png'},
+        {type: 'image', key: 'barBg', url: './assets/images/barBg.png'}
+    ]
+}
+// let arg = {
+//     key:'Main',
+//     pack:{
+//         files
+//     }
+// }
+
+
+export class Main extends Phaser.Scene {
+    wrapperWidth: any
+    wrapperHeight: any
+    scrollerWidth: any
+    scrollerHeight: any
+    maxScrollX: any
+    maxScrollY: any
+    startTime: any
+    startX: any
+    startY: any
+    absDistance: any
+
+    constructor() {
+        super({key: "Main"});
+    }
+
+    preload() {
+        this.load.image('tmw_desert_spacing', './static/assets/tmw_desert_spacing.png')
+        this.load.image('bunny', './static/assets/bunny.png')
+        this.load.image('eye', './static/assets/flowerTop2.png')
+        this.load.image('map', './static/assets/concept1_img1.png')
+        this.load.image('jqr', './static/assets/jiqirenl3_1.png')
+    }
+
+    create() {
+        console.time('create start')
+        // return;
+        let stage1 = this.add.container(0, 0)
+        stage1.name = 'stage1'
+
+        let stMap = new StaggeredTiledMap(this)
+        stage1.add(stMap)
+        // stMap.x = 50
+        // stMap.y = 25
+        // stMap.visible = false
+
+        for (var i = 0; i < userDataList.length; i++) {
+            // var sprite = this.add.sprite(100 + i * 30, 100 + i * 30, 'jqr').setInteractive({
+            //     pixelPerfect: true,
+            //     draggable: true
+            // })
+            let userdata = userDataList[i]
+            let {x,y} = stMap.mapData.map2screen(userdata.row,userdata.col)
+            var sprite = new Element(this, userdata)
+            sprite.x = x
+            sprite.y = y
+            sprite.tiledmap()
+            sprite.display()
+            stage1.add(sprite)
+            // sprite.on('drag', function (pointer, dragX, dragY) {
+            //
+            //   this.x = dragX;
+            //   this.y = dragY;
+            //
+            // });
+            /* sprite.on('pointerdown', function (pointer) {
+
+                  console.log('down');
+                  this.setTint(0xcccccc);
+
+                });
+
+                sprite.on('pointerup', function (pointer) {
+
+                  console.log('up');
+                  this.clearTint();
+
+                });
+
+                sprite.on('pointerover', function (pointer) {
+
+                  console.log('over');
+
+                });
+
+                sprite.on('pointerout', function (pointer) {
+
+                  console.log('out');
+                  this.clearTint();
+
+                }); */
+        }
+
+        let deceleration = 0.001 // 0.004 0.0006
+        this.wrapperWidth = this.game.config.width
+        this.wrapperHeight = this.game.config.height
+        this.scrollerWidth = stMap.mapWidth
+        this.scrollerHeight = stMap.mapHeight
+        this.maxScrollX = this.wrapperWidth - this.scrollerWidth
+        this.maxScrollY = this.wrapperHeight - this.scrollerHeight
+        this.startTime = null
+        this.startX = 0
+        this.startY = 0
+        this.absDistance = {x: 0, y: 0}
+        return;
+        this.input.on('dragstart', (pointer: any, gameObject: any, dragX: any, dragY: any) => {
+            let tm: any = window['TweenMax']
+            let tw: any = tm.getTweensOf(gameObject)
+            if (tw.length > 0) {
+                tw[0].kill()
+            }
+            this.startTime = new Date().getTime()
+            this.startX = gameObject.x
+            this.startY = gameObject.y
+            console.log('dragestart xy:', this.startX, this.startY)
+            // console.log('dragstart:', pointer, gameObject, dragX, dragY)
+        })
+        this.input.on('dragend', (pointer: any, gameObject: any, dragX: any, dragY: any) => {
+            let duration = new Date().getTime() - this.startTime
+            let momentumX = momentum(gameObject.x, this.startX, duration, this.maxScrollX, 0, deceleration)
+            let momentumY = momentum(gameObject.y, this.startY, duration, this.maxScrollY, 0, deceleration)
+            let newX = momentumX.destination
+            let newY = momentumY.destination
+            let time = Math.max(momentumX.duration, momentumY.duration)
+            console.log('start xy:', this.startX, this.startY)
+            console.log('cur xy:', gameObject.x, gameObject.y)
+            console.log('end xy:', newX, newY)
+            console.log('time:', momentumX.duration, momentumY.duration, time)
+
+            if (gameObject.name === 'stage1') {
+                window['TweenMax'].to(gameObject, time / 1000, {x: newX, y: newY, ease: window['Power2'].easeOut})
+            }
+        })
+        this.input.on('drag', (pointer: any, gameObject: any, dragX: any, dragY: any) => {
+            if (gameObject.name === 'stage1') {
+                dragX = dragX >= 0 ? 0 : dragX <= this.maxScrollX ? this.maxScrollX : dragX
+                dragY = dragY >= 0 ? 0 : dragY <= this.maxScrollY ? this.maxScrollY : dragY
+
+                this.absDistance.x = Math.abs(dragX - this.startX)
+                this.absDistance.y = Math.abs(dragY - this.startY)
+
+                let timestamp = new Date().getTime()
+                if (timestamp - this.startTime > 300) {
+                    this.startTime = timestamp
+                    this.startX = dragX
+                    this.startY = dragY
+                }
+            }
+
+            gameObject.x = dragX
+            gameObject.y = dragY
+        })
+
+        this.input.on('gameobjectdown', function (pointer: any, gameObject: any) {
+            if (gameObject.name !== 'stage1') {
+                gameObject.over()
+            }
+        })
+
+        this.input.on('gameobjectout', function (pointer: any, gameObject: any) {
+            if (gameObject.name !== 'stage1') {
+                gameObject.out()
+            }
+        })
+
+        this.input.on('gameobjectup', function (pointer: any, gameObject: any) {
+            if (gameObject.name !== 'stage1') {
+                gameObject.out()
+            }
+        })
+
+        this.input.on('pointerdown', function (pointer: any) {
+
+            // console.log('scene pointerdown');
+
+        })
+
+        this.input.on('pointerup', function (pointer: any) {
+
+            // console.log('scene pointerup');
+
+        })
+
+        console.timeEnd('create start')
+    }
+}
+
+var momentum = function (current: any, start: any, time: any, lowerMargin: any, wrapperSize: any, deceleration: any) {
+    var distance = current - start // 距离
+    var speed = Math.abs(distance) / time // 速度 = (距离/时间)
+    var destination;
+    var // 终点
+        duration// 持续时间
+
+    deceleration = deceleration === undefined ? 0.0006 : deceleration
+
+    destination = current + (speed * speed) / (2 * deceleration) * (distance < 0 ? -1 : 1)
+    duration = speed / deceleration
+
+    if (destination < lowerMargin) {
+        destination = wrapperSize ? lowerMargin - (wrapperSize / 2.5 * (speed / 8)) : lowerMargin
+        distance = Math.abs(destination - current)
+        duration = distance / speed
+    } else if (destination > 0) {
+        destination = wrapperSize ? wrapperSize / 2.5 * (speed / 8) : 0
+        distance = Math.abs(current) + destination
+        duration = distance / speed
+    }
+
+    return {
+        destination: Math.round(destination),
+        duration: duration
+    }
+}
