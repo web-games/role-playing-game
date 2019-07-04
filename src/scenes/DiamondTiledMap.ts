@@ -1,5 +1,6 @@
 import MapNodeView from './MapNodeView'
 import {NodeData} from './NodeData'
+import MapNode from "./MapNode";
 
 /**
  * 45度地图坐标
@@ -16,12 +17,6 @@ export default class DiamondTiledMap extends Phaser.GameObjects.Container {
     this.mdata = data
 
     let {row, col, height} = this.mdata
-    console.log('data:', this.mdata)
-
-    height = height || 0
-    this.y = -height * 50
-    console.log('y:', this.y)
-
     this.row = row
     this.col = col
 
@@ -40,9 +35,22 @@ export default class DiamondTiledMap extends Phaser.GameObjects.Container {
       for (j = 0; j < row; j++) {
         x = i * m_r + j * n_l
         y = i * m_d + j * n_d
-        let rhombus = new MapNodeView(scene, x, y, tileWidth, tileHeight, i, j, 0x52DDA3, 0.5)
+
+        var node = new MapNode({
+          x: x,
+          y: y,
+          col:i,
+          row:j,
+          width: tileWidth,
+          height: tileHeight
+        })
+
+        let rhombus = new MapNodeView(scene, node, 0x52DDA3, 0.5)
         this.add(rhombus)
       }
     }
+
+    height = height || 0
+    this.y = -height * tileHeight
   }
 }

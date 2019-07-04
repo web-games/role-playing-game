@@ -1,3 +1,8 @@
+/**
+ * 45度交错地图坐标
+ * */
+import MapNode from "./MapNode";
+
 export default class StaggeredTiledMap {
   row: number;
   col: number;
@@ -18,8 +23,18 @@ export default class StaggeredTiledMap {
     for (var i = 0; i < row; i++) {
       let arr = []
       for (var j = 0; j < col; j++) {
-        let p = this.map2screen(i,j)
-        arr.push(p)
+        let p = this.map2screen(i, j)
+
+        let node = new MapNode({
+          x: p.x,
+          y: p.y,
+          row: i,
+          col: j,
+          width: w,
+          height: h,
+          state: 0
+        })
+        arr.push(node)
       }
       this.nodeList.push(arr)
     }
@@ -82,5 +97,26 @@ export default class StaggeredTiledMap {
       rowNum: ytile,
       columnNum: xtile - (ytile & 1)
     }
+  }
+
+  /**
+   * 设置节点的占位状态
+   * */
+  setNodeState(gridX, gridY, rowSize, colSize, state) {
+    this.nodeList[gridX]
+
+    let i, j;
+    for (i = 0; i < colSize; i++) {
+      let rowIndex = gridX + i
+      let col = (rowIndex % 2 == 0) ? 1 : 0
+      // this.nodeList[row][col]
+    }
+  }
+
+  /**
+   *
+   * */
+  hitTest() {
+
   }
 }

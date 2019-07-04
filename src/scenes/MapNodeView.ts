@@ -1,6 +1,13 @@
+import MapNode from "./MapNode";
+
 export default class MapNodeView extends Phaser.GameObjects.Container {
-  constructor(scene: Phaser.Scene, x: number, y: number, w: number, h: number, row: number, col: number, color: number = 0xeff4f8, alpha = 1) {
-    super(scene, x, y)
+  constructor(scene: Phaser.Scene, node:MapNode, color: number = 0xeff4f8, alpha = 1) {
+    super(scene, node.x,node.y)
+
+    let w = node.width
+    let h = node.height
+    let row = node.row
+    let col = node.col
 
     var graphics = scene.add.graphics();
     graphics.fillStyle(color, alpha);

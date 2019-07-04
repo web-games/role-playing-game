@@ -1,9 +1,6 @@
 import MapNodeView from './MapNodeView'
 import StaggeredTiledMap from "./StaggeredTiledMap";
 
-/**
- * 45度交错地图坐标
- * */
 export default class StaggeredTiledMapView extends Phaser.GameObjects.Container {
   scene
 
@@ -32,7 +29,7 @@ export default class StaggeredTiledMapView extends Phaser.GameObjects.Container 
       let arr = this.mapData.nodeList[i];
       for (var j = 0; j < arr.length; j++) {
         let node = arr[j]
-        let rhombus = new MapNodeView(scene, node.x, node.y, this.mapData.tileWidth, this.mapData.tileHeight, i, j)
+        let rhombus = new MapNodeView(scene, node)
         this.add(rhombus)
       }
     }
@@ -56,7 +53,7 @@ export default class StaggeredTiledMapView extends Phaser.GameObjects.Container 
       draggable: true
     })
     this.on('pointerdown', (pointer: any, dragX: any, dragY: any) => {
-      console.log('pointerdown:', pointer, dragX, dragY)
+      // console.log('pointerdown:', pointer, dragX, dragY)
       // this.scene.stMap.mapData.screen2map(dragX, dragY)
     })
     this.on('dragstart', (pointer: any, gameObject: any, dragX: any, dragY: any) => {

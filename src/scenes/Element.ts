@@ -29,7 +29,7 @@ export default class Element extends Phaser.GameObjects.Container {
     let dtMap = new DiamondTiledMap(this.scene, mdata)
     this.add(dtMap)
 
-    console.log(mdata.children)
+    // console.log(mdata.children)
     if(mdata.children){
       this.tiledmap(mdata.children)
     }
