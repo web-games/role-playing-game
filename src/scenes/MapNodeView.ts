@@ -24,7 +24,8 @@ export default class MapNodeView extends Phaser.GameObjects.Container {
     this.add(graphics)
 
     let txt = scene.add.text(0, 0, (row) + ',' + (col), {
-      fontSize: 10
+      fontSize: 10,
+      color:'#ff0000'
     })
     this.add(txt)
     txt.setPosition(w / 2 - txt.width / 2, h / 2 - txt.height / 2)

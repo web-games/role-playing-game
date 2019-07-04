@@ -16,9 +16,9 @@ export default class DiamondTiledMap extends Phaser.GameObjects.Container {
     this.scene = scene
     this.mdata = data
 
-    let {row, col, height} = this.mdata
-    this.row = row
-    this.col = col
+    let {rows, cols, height} = this.mdata
+    this.row = rows
+    this.col = cols
 
     let tileWidth = 100;
     let tileHeight = 50;
@@ -31,16 +31,17 @@ export default class DiamondTiledMap extends Phaser.GameObjects.Container {
 
     let i, j;
     let x, y;
-    for (i = 0; i < col; i++) {
-      for (j = 0; j < row; j++) {
-        x = i * m_r + j * n_l
-        y = i * m_d + j * n_d
+
+    for (i = 0; i < rows; i++) {
+      for (j = 0; j < cols; j++) {
+        x = j * m_r + i * n_l
+        y = j * m_d + i * n_d
 
         var node = new MapNode({
           x: x,
           y: y,
-          col:i,
-          row:j,
+          col: j,
+          row: i,
           width: tileWidth,
           height: tileHeight
         })

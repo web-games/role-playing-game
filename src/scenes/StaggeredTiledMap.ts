@@ -4,25 +4,25 @@
 import MapNode from "./MapNode";
 
 export default class StaggeredTiledMap {
-  row: number;
-  col: number;
+  rows: number;// 行-单元格个数
+  cols: number;// 列-单元格个数
 
   // Tile的坐标原点在菱形的左上角
   tileWidth: number;
   tileHeight: number;
 
-  mapWidth: number;
-  mapHeight: number;
+  mapWidth: number;// 单元格宽
+  mapHeight: number;// 单元格高
   nodeList: Array<any> = [];
 
   constructor() {
-    let row = this.row = 50 // 宽-单元格个数
-    let col = this.col = 20 // 高-单元格个数
-    let w = this.tileWidth = 100 // 单元格宽
-    let h = this.tileHeight = 50 // 单元格高
-    for (var i = 0; i < row; i++) {
-      let arr = []
-      for (var j = 0; j < col; j++) {
+    let rows = this.rows = 50
+    let cols = this.cols = 20
+    let w = this.tileWidth = 100
+    let h = this.tileHeight = 50
+    for (var i = 0; i < rows; i++) {
+      let arr: Array<MapNode> = []
+      for (var j = 0; j < cols; j++) {
         let p = this.map2screen(i, j)
 
         let node = new MapNode({
@@ -38,23 +38,25 @@ export default class StaggeredTiledMap {
       }
       this.nodeList.push(arr)
     }
-    this.mapWidth = this.col * this.tileWidth + (this.tileWidth / 2)
-    this.mapHeight = this.row * (this.tileHeight / 2) + (this.tileHeight / 2)
+    this.mapWidth = this.cols * this.tileWidth + (this.tileWidth / 2)
+    this.mapHeight = this.rows * (this.tileHeight / 2) + (this.tileHeight / 2)
   }
 
   /**
    * 格子坐标转换到坐标点
    * */
-  map2screen(rowNum, columnNum) {
-    // console.log('rowNum:%d,columnNum:%d', rowNum, columnNum)
+  map2screen(row, column) {
+    // console.log('row:%d,column:%d', row, column)
     return {
-      x: (columnNum * this.tileWidth) + (rowNum & 1) * (this.tileWidth / 2),
-      y: rowNum * (this.tileHeight / 2)
+      x: (column * this.tileWidth) + (row & 1) * (this.tileWidth / 2),
+      y: row * (this.tileHeight / 2)
     }
   }
 
   /**
    * 坐标点转换到格子坐标
+   * @param px 相对于地图左上角(0,0)点的x坐标
+   * @param py 相对于地图左上角(0,0)点的y坐标
    * */
   screen2map(px: number, py: number) {
     // console.log(px, py)
@@ -94,29 +96,64 @@ export default class StaggeredTiledMap {
     // console.log(xtile - (ytile & 1), ytile,'\n');
 
     return {
-      rowNum: ytile,
-      columnNum: xtile - (ytile & 1)
+      row: ytile,
+      column: xtile - (ytile & 1)
     }
   }
 
   /**
-   * 设置节点的占位状态
+   * 设置单个网格的占位状态
+   * @param row 45度地图起始行
+   * @param column 45度地图起始列
    * */
-  setNodeState(gridX, gridY, rowSize, colSize, state) {
-    this.nodeList[gridX]
+  setOnceNodeState(row, column, state = 0) {
+    let nodeData: MapNode = this.nodeList[row][column]
+    nodeData.state = state
+    return nodeData
+  }
 
+  /**
+   * 设置45度地图网格 在 45度交错地图网格中的占位状态
+   * @param row 45度地图起始行
+   * @param column 45度地图起始列
+   * @param rows 行-单元格个数
+   * @param columns 列-单元格个数
+   * @state state {0 设置未占位， 1设置占位}
+   * */
+  setMultipleNodeState(row, column, rows, columns, state = 0) {
+    // console.log('setNodeState:', row, column, rows, columns, state)
     let i, j;
-    for (i = 0; i < colSize; i++) {
-      let rowIndex = gridX + i
-      let col = (rowIndex % 2 == 0) ? 1 : 0
-      // this.nodeList[row][col]
+    for (i = 0; i < rows; i++) {
+      for (j = 0; j < columns; j++) {
+        let rowIndex = (row + j) + i
+        let colIndex = column + Math.floor((j + (rowIndex % 2 === 0 ? 1 : 0)) / 2) - Math.floor(i / 2)
+        let nodeData: MapNode = this.nodeList[rowIndex][colIndex]
+        // console.log(nodeData.row, nodeData.col)
+        nodeData.state = state
+      }
+      // console.log('\n')
     }
   }
 
   /**
-   *
+   * 检测（45度地图网格）在（45度交错地图网格中）是否可放置
    * */
-  hitTest() {
-
+  hitTest(row, column, rows, columns) {
+    // console.log('hitTest:', row, column, rows, columns)
+    let bo = true
+    let i, j;
+    for (i = 0; i < rows; i++) {
+      for (j = 0; j < columns; j++) {
+        let rowIndex = (row + j) + i
+        let colIndex = column + Math.floor((j + (rowIndex % 2 === 0 ? 1 : 0)) / 2) - Math.floor(i / 2)
+        let nodeData: MapNode = this.nodeList[rowIndex][colIndex]
+        if (nodeData.state === 1) {
+          bo = false;
+          break;
+        }
+      }
+      if (!bo) break;
+    }
+    return bo
   }
 }

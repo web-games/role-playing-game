@@ -1,8 +1,8 @@
 interface NodeData {
   originX?: number,
   originY?: number,
-  row?: number,
-  col?: number,
+  rows?: number,
+  cols?: number,
   anchorX?: number,
   anchorY?: number,
   img?: any,
