@@ -46,7 +46,7 @@ export default class DiamondTiledMap extends Phaser.GameObjects.Container {
           height: tileHeight
         })
 
-        let rhombus = new MapNodeView(scene, node, 0x52DDA3, 0.5)
+        let rhombus = new MapNodeView(scene, node, 0x52DDA3, 0.2)
         this.add(rhombus)
       }
     }

@@ -4,22 +4,22 @@
 import MapNode from "./MapNode";
 
 export default class StaggeredTiledMap {
-  rows: number;// 行-单元格个数
-  cols: number;// 列-单元格个数
+  rows: number;// 行 - 单元格个数
+  cols: number;// 列 - 单元格个数
 
-  // Tile的坐标原点在菱形的左上角
-  tileWidth: number;
-  tileHeight: number;
+  // tile的坐标原点在菱形的左上角
+  tileWidth: number;// 单元格宽
+  tileHeight: number;// 单元格高
 
-  mapWidth: number;// 单元格宽
-  mapHeight: number;// 单元格高
+  mapWidth: number;
+  mapHeight: number;
   nodeList: Array<any> = [];
 
-  constructor() {
-    let rows = this.rows = 50
-    let cols = this.cols = 20
-    let w = this.tileWidth = 100
-    let h = this.tileHeight = 50
+  constructor(rows: number = 50, cols: number = 20, tw: number = 100, th: number = 50) {
+    this.rows = rows
+    this.cols = cols
+    this.tileWidth = tw
+    this.tileHeight = th
     for (var i = 0; i < rows; i++) {
       let arr: Array<MapNode> = []
       for (var j = 0; j < cols; j++) {
@@ -30,20 +30,22 @@ export default class StaggeredTiledMap {
           y: p.y,
           row: i,
           col: j,
-          width: w,
-          height: h,
+          width: tw,
+          height: th,
           state: 0
         })
         arr.push(node)
       }
       this.nodeList.push(arr)
     }
-    this.mapWidth = this.cols * this.tileWidth + (this.tileWidth / 2)
-    this.mapHeight = this.rows * (this.tileHeight / 2) + (this.tileHeight / 2)
+    this.mapWidth = this.cols * this.tileWidth
+    this.mapHeight = this.rows * (this.tileHeight / 2)
   }
 
   /**
    * 格子坐标转换到坐标点
+   * @param row 行
+   * @param column 列
    * */
   map2screen(row, column) {
     // console.log('row:%d,column:%d', row, column)
@@ -92,9 +94,6 @@ export default class StaggeredTiledMap {
       py = py - TileHeight / 2;
       ytile = parseInt(String(py / TileHeight)) * 2 + 1;
     }
-
-    // console.log(xtile - (ytile & 1), ytile,'\n');
-
     return {
       row: ytile,
       column: xtile - (ytile & 1)
@@ -103,8 +102,10 @@ export default class StaggeredTiledMap {
 
   /**
    * 设置单个网格的占位状态
+   *
    * @param row 45度地图起始行
    * @param column 45度地图起始列
+   * @retrun 设置节点MapNode
    * */
   setOnceNodeState(row, column, state = 0) {
     let nodeData: MapNode = this.nodeList[row][column]
@@ -114,6 +115,7 @@ export default class StaggeredTiledMap {
 
   /**
    * 设置45度地图网格 在 45度交错地图网格中的占位状态
+   *
    * @param row 45度地图起始行
    * @param column 45度地图起始列
    * @param rows 行-单元格个数
@@ -122,11 +124,16 @@ export default class StaggeredTiledMap {
    * */
   setMultipleNodeState(row, column, rows, columns, state = 0) {
     // console.log('setNodeState:', row, column, rows, columns, state)
-    let i, j;
+    let i;
+    let j;
     for (i = 0; i < rows; i++) {
       for (j = 0; j < columns; j++) {
+        // 分别计算在M，N方向 行的偏移值
         let rowIndex = (row + j) + i
-        let colIndex = column + Math.floor((j + (rowIndex % 2 === 0 ? 1 : 0)) / 2) - Math.floor(i / 2)
+        // 1：（初始列*2 + j）/ 2 ,计算出当前对应的列
+        // 2：+（row&1）, 当初始行是奇数行，初始列应该+1
+        // 3：-i , 每增加一行,减去一列
+        let colIndex = Math.floor(((column * 2) + (row & 1) + j - i) / 2)
         let nodeData: MapNode = this.nodeList[rowIndex][colIndex]
         // console.log(nodeData.row, nodeData.col)
         nodeData.state = state
@@ -137,15 +144,20 @@ export default class StaggeredTiledMap {
 
   /**
    * 检测（45度地图网格）在（45度交错地图网格中）是否可放置
+   *
+   * @param row 45度地图起始行
+   * @param column 45度地图起始列
+   * @param rows 行-单元格个数
+   * @param columns 列-单元格个数
+   * @return {true | false}
    * */
   hitTest(row, column, rows, columns) {
     // console.log('hitTest:', row, column, rows, columns)
-    let bo = true
-    let i, j;
+    let i, j, bo = true;
     for (i = 0; i < rows; i++) {
       for (j = 0; j < columns; j++) {
         let rowIndex = (row + j) + i
-        let colIndex = column + Math.floor((j + (rowIndex % 2 === 0 ? 1 : 0)) / 2) - Math.floor(i / 2)
+        let colIndex = Math.floor(((column * 2) + (row & 1) + j - i) / 2)
         let nodeData: MapNode = this.nodeList[rowIndex][colIndex]
         if (nodeData.state === 1) {
           bo = false;

@@ -38,7 +38,7 @@ export default class Element extends Phaser.GameObjects.Container {
   display() {
     let {anchorX, anchorY, originX, originY, rows, cols} = this.mdata
     // this.skin = this.scene.add.image(0, (maxH / 2) * this.h, 'jqr')
-    console.log(this.mdata.img)
+    // console.log(this.mdata.img)
     this.skin = this.scene.add.image(0, 0, this.mdata.img)
 
     let {width, height} = this.skin
@@ -46,12 +46,15 @@ export default class Element extends Phaser.GameObjects.Container {
     let ay = anchorY / height
     // console.log(width, height, anchorX, anchorY, ax, ay)
     this.add(this.skin)
+    // 显示到占格的中心
+    this.skin.y = this.mdata.rows * this.scene.stMap.mapData.tileHeight / 2
+
     this.skin.x -= (ax * width - width / 2)
     this.skin.y -= (ay * height - height / 2)
     // this.skin.x -= (ax * width - width / 2 + this.scene.stMap.mapData.tileWidth/2)
     // this.skin.y -= (ay * height - height / 2 + this.scene.stMap.mapData.tileHeight/2)
     this.skin.x += this.scene.stMap.mapData.tileWidth / 2
-    this.skin.y += this.scene.stMap.mapData.tileHeight / 2
+    // this.skin.y += this.scene.stMap.mapData.tileHeight / 2
     // this.skin.setOrigin(ax,ay)
     // console.log(this.skin.x, this.skin.y)
 
@@ -73,6 +76,8 @@ export default class Element extends Phaser.GameObjects.Container {
     })
 
     this.skin.on('dragstart', (pointer: any, gameObject: any, dragX: any, dragY: any) => {
+      this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 0)
+
       this.startX = this.x - this.skin.x
       this.startY = this.y - this.skin.y
 
@@ -91,23 +96,29 @@ export default class Element extends Phaser.GameObjects.Container {
       let y
       let {row, column} = this.getGrid(end_x, end_y)
       if (this.scene.stMap.mapData.hitTest(row, column, this.mdata.rows, this.mdata.cols)) {
-        this.scene.stMap.mapData.setMultipleNodeState(this.currentRow,this.currentCol,this.mdata.rows,this.mdata.cols,0)
+        this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 0)
         this.currentRow = row
         this.currentCol = column
         let nodeData = this.scene.stMap.mapData.nodeList[row][column]
         x = nodeData.x
         y = nodeData.y
-        this.scene.stMap.mapData.setMultipleNodeState(this.currentRow,this.currentCol,this.mdata.rows,this.mdata.cols,1)
+
+        this.setIndex()
       } else {
         let nodeData = this.scene.stMap.mapData.nodeList[this.currentRow][this.currentCol]
         x = nodeData.x
         y = nodeData.y
       }
 
+      this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 1)
       // this.x = x
       // this.y = y
       window['TweenMax'].to(this, 0.3, {x, y, ease: window['Power2'].easeOut})
     })
+  }
+
+  setIndex(){
+    console.log(this.parentContainer.list.length)
   }
 
   getMapXY(row, col) {
