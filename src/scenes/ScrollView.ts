@@ -1,6 +1,7 @@
 export class ScrollView {
 
   _content: any
+  _layer: any
   wrapperWidth: any
   wrapperHeight: any
   scrollerWidth: any
@@ -12,8 +13,9 @@ export class ScrollView {
   deceleration = 0.001 // 0.004 0.0006
 
   constructor(obj: any) {
-    let {content, wrapperWidth, wrapperHeight, scrollerWidth, scrollerHeight} = obj
+    let {layer, content, wrapperWidth, wrapperHeight, scrollerWidth, scrollerHeight} = obj
 
+    this._layer = layer
     this.wrapperWidth = wrapperWidth
     this.wrapperHeight = wrapperHeight
     this.scrollerWidth = scrollerWidth
@@ -78,7 +80,7 @@ export class ScrollView {
     // console.log('end xy:', newX, newY)
     // console.log('time:', momentumX.duration, momentumY.duration, time)
 
-    window['TweenMax'].to(this._content.parentContainer, time / 1000, {
+    window['TweenMax'].to([this._content.parentContainer, this._layer], time / 1000, {
       x: newX,
       y: newY,
       ease: window['Power2'].easeOut
@@ -101,6 +103,9 @@ export class ScrollView {
     // console.log(x, y)
     this._content.parentContainer.x = x;
     this._content.parentContainer.y = y;
+
+    this._layer.x = x;
+    this._layer.y = y;
 
     let timestamp = new Date().getTime()
     if (timestamp - this.startTime > 300) {

@@ -1,6 +1,7 @@
 import DiamondTiledMap from "./DiamondTiledMap";
 import {NodeData} from "./NodeData";
 import {Main} from "./Main";
+import DiamondTiledMapView from "./DiamondTiledMapView";
 
 export default class Element extends Phaser.GameObjects.Container {
   scene: Main
@@ -10,36 +11,40 @@ export default class Element extends Phaser.GameObjects.Container {
   startY
   currentRow
   currentCol
-  h: number
+
+  diamondTileMap: DiamondTiledMap
+  parentGoods = null
+
+  childrenContainer = null
 
   constructor(scene, data: NodeData) {
     super(scene)
     this.mdata = data
 
-    let {originX, originY} = data
-    this.currentRow = originY
-    this.currentCol = originX
-    let p = this.getMapXY(this.currentRow, this.currentCol)
-    this.x = p.x
-    this.y = p.y
+    let {row, col} = data
+    this.currentRow = row
+    this.currentCol = col
   }
 
-  tiledmap(mdata?: any) {
-    mdata = mdata || this.mdata
-    let dtMap = new DiamondTiledMap(this.scene, mdata)
-    this.add(dtMap)
+  tiledmap() {
+    var sdtMap = new DiamondTiledMapView(this.scene, this.diamondTileMap)
+    this.add(sdtMap)
+    sdtMap.fill(0xf2dda3)
+    let y = -this.mdata.height * this.diamondTileMap.tileHeight
+    sdtMap.y = y
 
-    // console.log(mdata.children)
-    if (mdata.children) {
-      this.tiledmap(mdata.children)
-    }
+    this.childrenContainer = this.scene.add.container(0, y)
+    this.add(this.childrenContainer)
   }
 
-  display() {
-    let {anchorX, anchorY, originX, originY, rows, cols} = this.mdata
-    // this.skin = this.scene.add.image(0, (maxH / 2) * this.h, 'jqr')
-    // console.log(this.mdata.img)
-    this.skin = this.scene.add.image(0, 0, this.mdata.img)
+  display(evt: boolean = true) {
+    let {anchorX, anchorY, rows, cols, img, children} = this.mdata
+    this.diamondTileMap = new DiamondTiledMap(rows, cols)
+    var fdtMap = new DiamondTiledMapView(this.scene, this.diamondTileMap)
+    this.add(fdtMap)
+    fdtMap.fill(0x52DDA3, 0.2)
+
+    this.skin = this.scene.add.image(0, 0, img)
 
     let {width, height} = this.skin
     let ax = anchorX / width
@@ -51,13 +56,15 @@ export default class Element extends Phaser.GameObjects.Container {
 
     this.skin.x -= (ax * width - width / 2)
     this.skin.y -= (ay * height - height / 2)
-    // this.skin.x -= (ax * width - width / 2 + this.scene.stMap.mapData.tileWidth/2)
-    // this.skin.y -= (ay * height - height / 2 + this.scene.stMap.mapData.tileHeight/2)
-    this.skin.x += this.scene.stMap.mapData.tileWidth / 2
-    // this.skin.y += this.scene.stMap.mapData.tileHeight / 2
-    // this.skin.setOrigin(ax,ay)
-    // console.log(this.skin.x, this.skin.y)
 
+    this.skin.x += this.scene.stMap.mapData.tileWidth / 2
+
+    if (evt) {
+      this.addEvent()
+    }
+  }
+
+  addEvent() {
     this.skin.setInteractive({
       pixelPerfect: true,
       draggable: true
@@ -76,7 +83,9 @@ export default class Element extends Phaser.GameObjects.Container {
     })
 
     this.skin.on('dragstart', (pointer: any, gameObject: any, dragX: any, dragY: any) => {
-      this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 0)
+      if (!this.parentGoods) {
+        this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 0)
+      }
 
       this.startX = this.x - this.skin.x
       this.startY = this.y - this.skin.y
@@ -94,21 +103,31 @@ export default class Element extends Phaser.GameObjects.Container {
       let end_y = this.y + this.scene.stMap.mapData.tileHeight / 2
       let x
       let y
-      let {row, column} = this.getGrid(end_x, end_y)
-      if (this.scene.stMap.mapData.hitTest(row, column, this.mdata.rows, this.mdata.cols)) {
-        this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 0)
-        this.currentRow = row
-        this.currentCol = column
-        let nodeData = this.scene.stMap.mapData.nodeList[row][column]
-        x = nodeData.x
-        y = nodeData.y
 
-        this.setIndex()
+      if (!this.parentGoods) {
+        let {row, column} = this.getGrid(end_x, end_y)
+        if (this.scene.stMap.mapData.hitTest(row, column, this.mdata.rows, this.mdata.cols)) {
+          this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 0)
+          this.currentRow = row
+          this.currentCol = column
+          let nodeData = this.scene.stMap.mapData.nodeList[row][column]
+          x = nodeData.x
+          y = nodeData.y
+
+          this.setIndex()
+        } else {
+          let nodeData = this.scene.stMap.mapData.nodeList[this.currentRow][this.currentCol]
+          x = nodeData.x
+          y = nodeData.y
+        }
       } else {
-        let nodeData = this.scene.stMap.mapData.nodeList[this.currentRow][this.currentCol]
+        let {row,column} = this.parentGoods.diamondTileMap.screen2map(end_x,end_y)
+        // console.log(row,column)
+        let nodeData = this.parentGoods.diamondTileMap.nodeList[this.currentRow][this.currentCol]
         x = nodeData.x
         y = nodeData.y
       }
+
 
       this.scene.stMap.mapData.setMultipleNodeState(this.currentRow, this.currentCol, this.mdata.rows, this.mdata.cols, 1)
       // this.x = x
@@ -117,7 +136,7 @@ export default class Element extends Phaser.GameObjects.Container {
     })
   }
 
-  setIndex(){
+  setIndex() {
     console.log(this.parentContainer.list.length)
   }
 
