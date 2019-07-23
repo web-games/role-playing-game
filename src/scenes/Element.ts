@@ -1,7 +1,7 @@
-import DiamondTiledMap from "./DiamondTiledMap";
+import DiamondTiledMap from "../map/DiamondTiledMap";
 import {NodeData} from "./NodeData";
 import {Main} from "./Main";
-import DiamondTiledMapView from "./DiamondTiledMapView";
+import DiamondTiledMapView from "../map/DiamondTiledMapView";
 
 export default class Element extends Phaser.GameObjects.Container {
   scene: Main
@@ -17,7 +17,7 @@ export default class Element extends Phaser.GameObjects.Container {
 
   childrenContainer = null
 
-  constructor(scene, data: NodeData) {
+  constructor(scene, data) {
     super(scene)
     this.mdata = data
 
@@ -45,6 +45,7 @@ export default class Element extends Phaser.GameObjects.Container {
     fdtMap.fill(0x52DDA3, 0.2)
 
     this.skin = this.scene.add.image(0, 0, img)
+    // this.skin.alpha = 0.5;
 
     let {width, height} = this.skin
     let ax = anchorX / width
@@ -121,7 +122,7 @@ export default class Element extends Phaser.GameObjects.Container {
           y = nodeData.y
         }
       } else {
-        let {row,column} = this.parentGoods.diamondTileMap.screen2map(end_x,end_y)
+        let {row, column} = this.parentGoods.diamondTileMap.screen2map(end_x, end_y)
         // console.log(row,column)
         let nodeData = this.parentGoods.diamondTileMap.nodeList[this.currentRow][this.currentCol]
         x = nodeData.x

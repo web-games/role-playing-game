@@ -7,12 +7,7 @@ interface NodeData {
   anchorY?: number,
   img?: any,
   height?: any,
-  children: {
-    height?: number,
-    row?: number,
-    col?: number,
-    img?: any
-  }
+  children?: NodeData
 }
 
 export {NodeData}

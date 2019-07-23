@@ -1,4 +1,4 @@
-import StaggeredTiledMapView from "./StaggeredTiledMapView";
+import StaggeredTiledMapView from "../map/StaggeredTiledMapView";
 import Element from './Element'
 import {userDataList} from './data'
 import {NodeData} from "./NodeData";
@@ -17,6 +17,8 @@ export class Main extends Phaser.Scene {
     this.load.image('chugui', './static/assets/chugui.png')
     this.load.image('chugui', './static/assets/chugui.png')
     this.load.image('tile', './static/assets/tile.png')
+    this.load.image('dangao', './static/assets/dangaoL2_0_2x2.png')
+    this.load.image('xiaoaigui', './static/assets/xiaoaiguiL2_1_2x2.png')
   }
 
   create() {
@@ -60,10 +62,10 @@ export class Main extends Phaser.Scene {
       ele.y = p.y
       stMap.mapData.setMultipleNodeState(data.row, data.col, data.rows, data.cols, 1)
 
-      if (data.children) {
+      if (data['children']) {
         ele.tiledmap()
 
-        var childrenEle = new Element(this, data.children as NodeData)
+        var childrenEle = new Element(this, data['children'])
         childrenEle.display()
         ele.childrenContainer.add(childrenEle)
         let p = ele.diamondTileMap.map2screen(childrenEle.currentRow, childrenEle.currentCol)
