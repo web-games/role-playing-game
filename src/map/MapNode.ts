@@ -31,9 +31,9 @@ export default class MapNode {
   set state(val) {
     if (this._ele) {
       if (val === 0) {
-        this._ele.changeState(0xfafafa, 1)
+        this._ele.changeState(0xfafafa, 0.01)
       } else if (val === 1) {
-        this._ele.changeState(0xeff4f8, 1)
+        this._ele.changeState(0xeff4f8, 0.01)
       }
     }
     this._state = val

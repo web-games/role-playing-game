@@ -13,6 +13,7 @@ export class Main extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('floor', './static/assets/floor.png')
     this.load.image('jiqiren', './static/assets/jiqiren.png')
     this.load.image('chugui', './static/assets/chugui.png')
     this.load.image('chugui', './static/assets/chugui.png')
@@ -22,6 +23,13 @@ export class Main extends Phaser.Scene {
   }
 
   create() {
+    var map = this.make.tilemap({width: 4, height: 2, tileWidth: 200, tileHeight: 200});
+    var tiles = map.addTilesetImage('floor');
+    var layer = map.createBlankDynamicLayer('layer1', tiles, 0, 0);
+    layer.randomize(0, 0, map.width, map.height, [0]);
+    // layer.alpha = 0
+    this.layer = layer
+
     // return;
     let stage1 = this.add.container(0, 0)
     stage1.name = 'stage1'
@@ -30,14 +38,6 @@ export class Main extends Phaser.Scene {
     stage1.add(stMap)
     this.stMap = stMap
     console.log(this.stMap.mapData.mapWidth, this.stMap.mapData.mapHeight)
-
-
-    var map = this.make.tilemap({width: 2, height: 2, tileWidth: 200, tileHeight: 200});
-    var tiles = map.addTilesetImage('tile');
-    var layer = map.createBlankDynamicLayer('layer1', tiles, 0, 0);
-    layer.randomize(0, 0, map.width, map.height, [0]);
-    layer.alpha = 0
-    this.layer = layer
 
     let scrollView = new ScrollView({
       content: stMap,
