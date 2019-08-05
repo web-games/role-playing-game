@@ -13,26 +13,26 @@ export default class ApplicationMediator extends Mediator implements IMediator {
   public static NAME: string = "application_mediator";
 
   constructor(game: any) {
-    super(ApplicationMediator.NAME,game)
+    super(ApplicationMediator.NAME, game)
     this.viewComponent.scene.add('MapScene', MapScene, true)
     this.viewComponent.scene.add('StartScene', StartScene, true)
-    this.startScene.events.on(StartScene.ADD_MONEY,this.addMoneyListener,this)
-    this.startScene.events.on(StartScene.SUB_MONEY,this.addMoneyListener,this)
-    this.onRegister()
-  }
-  private addMoneyListener(data) {
-    this.sendNotification(ApplicationFacade.MSG_ADD,data)
+    this.startScene.events.on(StartScene.ADD_MONEY, this.addMoneyListener, this)
+    this.startScene.events.on(StartScene.SUB_MONEY, this.addMoneyListener, this)
   }
 
-  public listNotificationInterests():string[]{
+  private addMoneyListener(data) {
+    this.sendNotification(ApplicationFacade.MSG_ADD, data)
+  }
+
+  public listNotificationInterests(): string[] {
     return [UserProxy.CHANGE_MONEY]
   }
 
-  public handleNotification(notification:INotification):void{
-    console.log('收到通知,name:',notification.getName(),' body:',notification.getBody())
+  public handleNotification(notification: INotification): void {
+    console.log('handle notification, name:', notification.getName(), ' body:', notification.getBody())
     switch (notification.getName()) {
       case UserProxy.CHANGE_MONEY:
-          this.startScene.setTitleText(notification.getBody().money)
+        this.startScene.setTitleText(notification.getBody().money)
         break;
       default:
 
@@ -40,7 +40,7 @@ export default class ApplicationMediator extends Mediator implements IMediator {
     }
   }
 
-  get startScene():StartScene{
+  get startScene(): StartScene {
     return this.viewComponent.scene.keys['StartScene'] as StartScene
   }
 }

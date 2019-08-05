@@ -1,7 +1,9 @@
+import Facade = puremvc.Facade;
+import IFacade = puremvc.IFacade;
 import StartupCommand from "./controller/StartupCommand";
 import Game from "../Game";
 
-export default class ApplicationFacade extends puremvc.Facade implements puremvc.IFacade {
+export default class ApplicationFacade extends Facade implements IFacade {
   public static STARTUP = 'startup'
   public static MSG_ADD: string = 'msg_add'
   public static instance = null
