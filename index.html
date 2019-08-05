@@ -7,27 +7,43 @@
 </head>
 <body>
 <div id="Box"></div>
+<script>
+  (function (w, d) {
+    if ((/vkdev=1/.test(w.location) || w.localStorage.getItem('vkdev'))) {
+      var s = d.createElement('script');
+      s.src = './static/lib/vconsole.min.js';
+      s.setAttribute('charset', 'UTF-8');
+      d.head.appendChild(s);
+      s.onload = function () {
+        new VConsole();
+      }
+    }
+
+    if ((/stats=1/.test(w.location) || w.localStorage.getItem('stats'))) {
+      var s = d.createElement('script');
+      s.src = './static/lib/stats.min.js';
+      s.setAttribute('charset', 'UTF-8');
+      d.head.appendChild(s);
+      s.onload = function () {
+        var stats = new Stats();
+        document.body.appendChild(stats.domElement);
+        stats.domElement.style.position = 'absolute'
+        stats.domElement.style.top = '0'
+        stats.domElement.style.right = '0'
+        stats.domElement.style.zIndex = '99'
+
+        function animate() {
+          requestAnimationFrame(animate);
+
+          if (stats) stats.update();
+        };
+        animate();
+      }
+    }
+  }(window, document))
+</script>
 <script src="./static/lib/phaser/phaser-3.18.0.js"></script>
 <script src="./static/lib/puremvc/puremvc-1.0.1.js"></script>
 <script src="./static/lib/TweenMax.min.js"></script>
-<script src="./static/lib/stats.min.js"></script>
-<script src="./static/lib/vconsole.min.js"></script>
-
-<script>
-  var stats = new Stats();
-  var statsEle = stats.domElement
-  document.getElementById('Box').appendChild(statsEle);
-  statsEle.style.position = 'absolute'
-  statsEle.style.top = '0'
-  statsEle.style.right = '0'
-  statsEle.style.zIndex = '2'
-
-  function animate() {
-    requestAnimationFrame(animate);
-
-    if (stats) stats.update();
-  };
-  animate();
-</script>
 </body>
 </html>
