@@ -1,4 +1,4 @@
-module game {
+namespace game {
   export class ApplicationFacade extends puremvc.Facade implements puremvc.IFacade {
     public static STARTUP = 'startup'
     public static MSG_ADD: string = 'msg_add'
