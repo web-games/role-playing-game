@@ -1,19 +1,13 @@
-import './assets/style.css'
+import ApplicationFacade from "./org/ApplicationFacade";
 
-// import "phaser";
-import { Main } from './scenes/Main';
-
-const game = new Phaser.Game({
-    type: Phaser.AUTO,
-    transparent: true,
-    autoFocus: true,
-    scale: {
-        // zoom: Phaser.Scale.Zoom.ZOOM_2X,
-        mode: Phaser.Scale.FIT,
-        parent: 'Box',
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    scene: [
-        Main
-    ]
-});
+export default class Game extends Phaser.Game {
+  public static app:ApplicationFacade
+  public static GAME_START:'game_start'
+  constructor(config: Phaser.Types.Core.GameConfig) {
+    super(config);
+  }
+  protected start(){
+    super.start()
+    this.events.emit(Game.GAME_START)
+  }
+}

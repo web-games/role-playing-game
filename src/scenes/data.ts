@@ -8,7 +8,7 @@ let userDataList = [
   // {row: 4, col: 4, originX: 4, originY: 4, anchorX: 84, anchorY: 177, img: 'jiqiren'},
   {
     rows: 3,
-    cols: 2,
+    cols: 3,
     row: 17,
     col: 7,
     anchorX: 176,
@@ -19,7 +19,7 @@ let userDataList = [
       rows: 2,
       cols: 2,
       row: 0,
-      col: 0,
+      col: 1,
       anchorX: 108,
       anchorY: 145,
       img: 'dangao',

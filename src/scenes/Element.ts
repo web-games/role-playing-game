@@ -1,10 +1,10 @@
 import DiamondTiledMap from "../map/DiamondTiledMap";
 import {NodeData} from "./NodeData";
-import {Main} from "./Main";
+import MapScene from "./MapScene";
 import DiamondTiledMapView from "../map/DiamondTiledMapView";
 
 export default class Element extends Phaser.GameObjects.Container {
-  scene: Main
+  scene: MapScene
   skin: Phaser.GameObjects.Image
   mdata: NodeData
   startX
@@ -109,12 +109,12 @@ export default class Element extends Phaser.GameObjects.Container {
   display(evt: boolean = true) {
     let {anchorX, anchorY, rows, cols, img, children} = this.mdata
     this.diamondTileMap = new DiamondTiledMap(rows, cols)
-    // var fdtMap = new DiamondTiledMapView(this.scene, this.diamondTileMap)
-    // this.add(fdtMap)
-    // fdtMap.fill(0x52DDA3, 0.2)
+    var fdtMap = new DiamondTiledMapView(this.scene, this.diamondTileMap)
+    this.add(fdtMap)
+    fdtMap.fill(0x52DDA3, 0.2)
 
     this.skin = this.scene.add.image(0, 0, img)
-    // this.skin.alpha = 0.5;
+    // this.skin.alpha = 0.001;
 
     let {width, height} = this.skin
     let ax = anchorX / width
