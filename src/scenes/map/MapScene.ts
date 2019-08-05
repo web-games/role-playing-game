@@ -1,4 +1,4 @@
-import StaggeredTiledMapView from "../map/StaggeredTiledMapView";
+import StaggeredTiledMapView from "../../map/StaggeredTiledMapView";
 import Element from './Element'
 import {userDataList} from './data'
 import {NodeData} from "./NodeData";

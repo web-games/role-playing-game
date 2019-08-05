@@ -1,7 +1,7 @@
-import DiamondTiledMap from "../map/DiamondTiledMap";
+import DiamondTiledMap from "../../map/DiamondTiledMap";
 import {NodeData} from "./NodeData";
 import MapScene from "./MapScene";
-import DiamondTiledMapView from "../map/DiamondTiledMapView";
+import DiamondTiledMapView from "../../map/DiamondTiledMapView";
 
 export default class Element extends Phaser.GameObjects.Container {
   scene: MapScene

@@ -1,10 +1,10 @@
 import Mediator = puremvc.Mediator;
 import IMediator = puremvc.IMediator;
 import INotification = puremvc.INotification;
-import StartScene from "../../scenes/StartScene";
+import StartScene from "../../scenes/start/StartScene";
 import UserProxy from "../model/UserProxy";
 import ApplicationFacade from "../ApplicationFacade";
-import MapScene from "../../scenes/MapScene";
+import MapScene from "../../scenes/map/MapScene";
 
 /**
  * ApplicationMediator 对场景视图的操作

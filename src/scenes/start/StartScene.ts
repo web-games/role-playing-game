@@ -1,4 +1,4 @@
-import PhaserButton from "../component/UI/PhaserButton";
+import PhaserButton from "../../component/UI/PhaserButton";
 
 export default class StartScene extends Phaser.Scene {
   public static ADD_MONEY: string = 'add_money'
