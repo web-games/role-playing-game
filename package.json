@@ -1,5 +1,5 @@
 {
-  "name": "webpack4.x",
+  "name": "ts-pro-template",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -25,7 +25,5 @@
     "webpack-dev-server": "^3.7.2",
     "webpack-merge": "^4.2.1"
   },
-  "dependencies": {
-    "phaser": "^3.18.0"
-  }
+  "dependencies": {}
 }

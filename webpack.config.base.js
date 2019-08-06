@@ -1,4 +1,6 @@
 const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -6,12 +8,35 @@ module.exports = {
   },
   output: {
     path: __dirname + '/dist',
-    publicPath:'/',
-    filename: '[name].js'
+    publicPath: '/',
+    filename: 'app.[hash:7].js'
   },
   resolve: {
+    alias: {
+      '@': path.join(__dirname, './')
+    },
     extensions: ['.ts', '.js', '.json']
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './index.html',
+      filename: 'index.html',
+      chunks: ['main'],
+      inject: 'body',
+      minify: {
+        removeComments: false,
+        collapseWhitespace: false,
+        removeAttributeQuotes: false
+      }
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, './static'),
+        to: 'static',
+        ignore: ['.*']
+      }
+    ])
+  ],
   module: {
     rules: [
       {
@@ -19,16 +44,16 @@ module.exports = {
         use: 'ts-loader'
       },
       {
-        test:/\.css$/,
-        use:[
+        test: /\.css$/,
+        use: [
           {
-            loader:'style-loader',
-            options:{
-              singleton:true
+            loader: 'style-loader',
+            options: {
+              singleton: true
             }
           },
           {
-            loader:'css-loader'
+            loader: 'css-loader'
           }
         ]
       },
@@ -36,7 +61,7 @@ module.exports = {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url-loader',
         options: {
-          limit: 2048,
+          limit: 100,
           name: path.posix.join('./', 'img/[name].[hash:7].[ext]'),
           publicPath: './'
         }
