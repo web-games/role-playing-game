@@ -1,10 +1,10 @@
-import MapNode from "./MapNode";
+import MapNode from "../MapNode";
 
 /**
  * 45度地图坐标
  * 参考：http://blog.sina.com.cn//s/blog_6807f539010103ce.html
  * */
-export default class DiamondTiledMap {
+export default class DiamondMap {
   public rows
   public cols
   public tileWidth

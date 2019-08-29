@@ -1,15 +1,13 @@
-import MapNodeView from "./MapNodeView";
-
 export default class MapNode {
   public row
   public col
-  public x
-  public y
+  public x: number
+  public y: number
   public width
   public height
 
-  private _ele: MapNodeView = null
-  // 未占位0，已占位0
+  private _ele: any
+  // 未占位0，已占位1
   private _state = 0
 
   constructor(data) {
@@ -24,7 +22,7 @@ export default class MapNode {
     this.state = state
   }
 
-  set ele(val: MapNodeView) {
+  set ele(val) {
     this._ele = val
   }
 
@@ -33,7 +31,7 @@ export default class MapNode {
       if (val === 0) {
         this._ele.changeState(0xfafafa, 0.01)
       } else if (val === 1) {
-        this._ele.changeState(0xeff4f8, 0.01)
+        this._ele.changeState(0xeff4f8, 1)
       }
     }
     this._state = val

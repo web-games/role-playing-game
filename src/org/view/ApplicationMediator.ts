@@ -1,10 +1,11 @@
 import Mediator = puremvc.Mediator;
 import IMediator = puremvc.IMediator;
 import INotification = puremvc.INotification;
-import StartScene from "../../scenes/start/StartScene";
+import HomeScene from "../../scenes/start/HomeScene";
 import UserProxy from "../model/UserProxy";
 import ApplicationFacade from "../ApplicationFacade";
-import MapScene from "../../scenes/map/MapScene";
+import TiledMapScene from "../../scenes/tiledMap/TiledMapScene";
+import StaggeredMapScene from "../../scenes/staggeredMap/StaggeredMapScene";
 
 /**
  * ApplicationMediator 对场景视图的操作
@@ -14,10 +15,11 @@ export default class ApplicationMediator extends Mediator implements IMediator {
 
   constructor(game: any) {
     super(ApplicationMediator.NAME, game)
-    this.viewComponent.scene.add('MapScene', MapScene, true)
-    this.viewComponent.scene.add('StartScene', StartScene, true)
-    this.startScene.events.on(StartScene.ADD_MONEY, this.addMoneyListener, this)
-    this.startScene.events.on(StartScene.SUB_MONEY, this.addMoneyListener, this)
+    this.viewComponent.scene.add(TiledMapScene.NAME, TiledMapScene, false)
+    this.viewComponent.scene.add(StaggeredMapScene.NAME, StaggeredMapScene, true)
+    // this.viewComponent.scene.add('HomeScene', HomeScene, true)
+    // this.homeScene.events.on(HomeScene.ADD_MONEY, this.addMoneyListener, this)
+    // this.homeScene.events.on(HomeScene.SUB_MONEY, this.addMoneyListener, this)
   }
 
   private addMoneyListener(data) {
@@ -32,7 +34,7 @@ export default class ApplicationMediator extends Mediator implements IMediator {
     console.log('handle notification, name:', notification.getName(), ' body:', notification.getBody())
     switch (notification.getName()) {
       case UserProxy.CHANGE_MONEY:
-        this.startScene.setTitleText(notification.getBody().money)
+        this.homeScene.setTitleText(notification.getBody().money)
         break;
       default:
 
@@ -40,7 +42,7 @@ export default class ApplicationMediator extends Mediator implements IMediator {
     }
   }
 
-  get startScene(): StartScene {
-    return this.viewComponent.scene.keys['StartScene'] as StartScene
+  get homeScene(): HomeScene {
+    return this.viewComponent.scene.keys['HomeScene'] as HomeScene
   }
 }
