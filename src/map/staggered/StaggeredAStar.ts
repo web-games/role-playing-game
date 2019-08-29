@@ -46,7 +46,7 @@ export default class AStar {
     if (endNode) {
       pathArr = []
       while (endNode) {
-        pathArr.push([endNode.row,endNode.col])
+        pathArr.push([endNode.row, endNode.col])
         endNode = endNode.parent
       }
     } else {
@@ -94,7 +94,10 @@ export default class AStar {
 
         // 设置移动一格代价值
         cost = this._straightCost
-        if (!(snode.row === ele.row || snode.col === ele.col)) {
+        /*if (!(snode.row === ele.row || snode.col === ele.col)) {
+          cost = this._diagCost
+        }*/
+        if ((ele.d === 'up' || ele.d === 'down' || ele.d === 'left' || ele.d === 'right')) {
           cost = this._diagCost
         }
 
