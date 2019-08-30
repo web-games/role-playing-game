@@ -3,6 +3,7 @@ import IMediator = puremvc.IMediator;
 import INotification = puremvc.INotification;
 import UserProxy from "../model/UserProxy";
 import ApplicationFacade from "../ApplicationFacade";
+import HomeScene from "../../scenes/home/HomeScene";
 import TiledMapScene from "../../scenes/tiledMap/TiledMapScene";
 import StaggeredMapScene from "../../scenes/staggeredMap/StaggeredMapScene";
 
@@ -14,8 +15,9 @@ export default class ApplicationMediator extends Mediator implements IMediator {
 
   constructor(game: any) {
     super(ApplicationMediator.NAME, game)
-    this.viewComponent.scene.add(TiledMapScene.NAME, TiledMapScene, true)
-    // this.viewComponent.scene.add(StaggeredMapScene.NAME, StaggeredMapScene, true)
+    this.viewComponent.scene.add(HomeScene.NAME, HomeScene, true)
+    this.viewComponent.scene.add(TiledMapScene.NAME, TiledMapScene, false)
+    this.viewComponent.scene.add(StaggeredMapScene.NAME, StaggeredMapScene, false)
   }
 
   private addMoneyListener(data) {

@@ -13,7 +13,7 @@ export default class StaggeredMapScene extends Phaser.Scene {
   curNode
 
   constructor() {
-    super({key: "StaggeredMapScene"});
+    super({key: StaggeredMapScene.NAME});
   }
 
   preload() {
