@@ -1,7 +1,6 @@
 import Mediator = puremvc.Mediator;
 import IMediator = puremvc.IMediator;
 import INotification = puremvc.INotification;
-import HomeScene from "../../scenes/start/HomeScene";
 import UserProxy from "../model/UserProxy";
 import ApplicationFacade from "../ApplicationFacade";
 import TiledMapScene from "../../scenes/tiledMap/TiledMapScene";
@@ -15,11 +14,8 @@ export default class ApplicationMediator extends Mediator implements IMediator {
 
   constructor(game: any) {
     super(ApplicationMediator.NAME, game)
-    this.viewComponent.scene.add(TiledMapScene.NAME, TiledMapScene, false)
-    this.viewComponent.scene.add(StaggeredMapScene.NAME, StaggeredMapScene, true)
-    // this.viewComponent.scene.add('HomeScene', HomeScene, true)
-    // this.homeScene.events.on(HomeScene.ADD_MONEY, this.addMoneyListener, this)
-    // this.homeScene.events.on(HomeScene.SUB_MONEY, this.addMoneyListener, this)
+    this.viewComponent.scene.add(TiledMapScene.NAME, TiledMapScene, true)
+    // this.viewComponent.scene.add(StaggeredMapScene.NAME, StaggeredMapScene, true)
   }
 
   private addMoneyListener(data) {
@@ -34,15 +30,11 @@ export default class ApplicationMediator extends Mediator implements IMediator {
     console.log('handle notification, name:', notification.getName(), ' body:', notification.getBody())
     switch (notification.getName()) {
       case UserProxy.CHANGE_MONEY:
-        this.homeScene.setTitleText(notification.getBody().money)
+
         break;
       default:
 
         break;
     }
-  }
-
-  get homeScene(): HomeScene {
-    return this.viewComponent.scene.keys['HomeScene'] as HomeScene
   }
 }
