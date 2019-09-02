@@ -14,7 +14,7 @@ module.exports = merge(baseWebpackConfig,{
   devServer: {
     contentBase: path.resolve(__dirname, 'dist'),
     host: HOST || '0.0.0.0',
-    port: PORT || 8082,
+    port: PORT || 8086,
     open: false,
     openPage: '?vkdev=1&status=1',
   }

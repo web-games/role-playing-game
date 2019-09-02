@@ -55,23 +55,24 @@ export default class StaggeredMapScene extends Phaser.Scene {
     let layer1 = this.add.container(0, 0, this.tiledMapLayer)
 
     let map = [
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 1, 0],
-      [0, 0, 0, 0, 0, 1],
-      [0, 0, 0, 0, 1, 0],
-      [0, 0, 0, 0, 0, 1],
-      [0, 0, 0, 0, 1, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 1, 1],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0],
+      //0 1  2  3  4  5
+      [1, 0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 1, 0],
+      [0, 1, 0, 0, 0, 1],
+      [0, 1, 0, 0, 1, 0],
+      [1, 0, 1, 0, 0, 1],
+      [1, 0, 1, 0, 1, 0],// 5
+      [0, 1, 0, 1, 0, 0],
+      [0, 1, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0],
+      [0, 1, 0, 0, 1, 1],
+      [0, 1, 0, 1, 0, 0], // 10
+      [1, 0, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0],
+      [0, 1, 0, 0, 0, 0],
+      [0, 1, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0],
       [1, 1, 1, 1, 1, 1],
@@ -91,7 +92,7 @@ export default class StaggeredMapScene extends Phaser.Scene {
   }
 
   public initPlayer() {
-    let start = {row: 3, col: 3}
+    let start = {row: 8, col: 3}
     let end = {row: 3, col: 5}
     let pnode = this.tiledMap.nodeList[start.row][start.col]
     this.player = this.add.image(pnode.x + pnode.width / 2, pnode.y + pnode.height / 2, "bunny.png")
