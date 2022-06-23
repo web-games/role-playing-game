@@ -48,31 +48,32 @@ export default class StaggeredMapScene extends Phaser.Scene {
       // console.log(pointer, dragX, dragY, event)
       let {row, column} = this.tiledMap.screen2map(dragX, dragY)
       this.pathArr = this.aStar.findPath(this.curNode[0], this.curNode[1], row, column)
+      this.pathArr && this.pathArr.length && this.pathArr.pop()
       this.move()
     })
     this.tiledMapLayer.showGridView()
 
-    let layer1 = this.add.container(0, 0, this.tiledMapLayer)
+    this.add.container(0, 0, this.tiledMapLayer)
 
     let map = [
       //0 1  2  3  4  5
-      [1, 0, 0, 0, 0, 0],
-      [1, 0, 0, 0, 1, 0],
-      [0, 1, 0, 0, 0, 1],
-      [0, 1, 0, 0, 1, 0],
-      [1, 0, 1, 0, 0, 1],
-      [1, 0, 1, 0, 1, 0],// 5
-      [0, 1, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1],
+      [0, 0, 0, 1, 0, 1],
+      [0, 0, 0, 0, 1, 1],
+      [0, 0, 0, 0, 1, 0],// 5
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
       [0, 1, 0, 0, 0, 0],
-      [0, 0, 1, 0, 0, 0],
-      [0, 1, 0, 0, 1, 1],
-      [0, 1, 0, 1, 0, 0], // 10
-      [1, 0, 1, 0, 0, 0],
-      [1, 0, 1, 0, 0, 0],
-      [0, 1, 0, 0, 0, 0],
-      [0, 1, 0, 0, 0, 0],
-      [1, 0, 0, 0, 0, 0],
-      [1, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0], // 10
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0],
       [1, 1, 1, 1, 1, 1],
@@ -86,36 +87,98 @@ export default class StaggeredMapScene extends Phaser.Scene {
 
     let astar = new AStar()
     astar.outFilter = (node) => {
-      return this.tiledMap.nodeList[node.row][node.col].state === 1
+      if (!this.canWalk(node.row, node.col))
+        return true
+
+      if (node.d === 'left_up' || node.d === 'right_up' || node.d === 'left_down' || node.d === 'right_down') {
+        let h_row1
+        let h_col1
+        let v_row2
+        let v_col2
+
+        //  检测两点之间是否有障碍,如果有则不能斜着走,反正则可以斜着走
+        switch (node.d) {
+          case "left_up":
+            h_row1 = node.row + 1
+            h_col1 = (node.row % 2 === 0 ? node.col : node.col + 1)
+
+            v_row2 = node.row + 1
+            v_col2 = (node.row % 2 === 0 ? node.col - 1 : node.col)
+            break;
+          case "right_up":
+            h_row1 = node.row - 1
+            h_col1 = node.col - 1
+            v_row2 = node.row + 1
+            v_col2 = (node.row % 2 === 0 ? node.col - 1 : node.col)
+            break;
+          case "left_down":
+            h_row1 = node.row + 1
+            h_col1 = (node.row % 2 === 0 ? node.col : node.col + 1)
+
+            v_row2 = node.row - 1
+            v_col2 = (node.row % 2 === 0 ? node.col : node.col + 1)
+            break;
+          case "right_down":
+            h_row1 = node.row - 1
+            h_col1 = (node.row % 2 === 0 ? node.col - 1 : node.col)
+
+            v_row2 = node.row - 1
+            v_col2 = (node.row % 2 === 0 ? node.col : node.col + 1)
+            break;
+        }
+
+        if (!this.canWalk(h_row1, h_col1) || !this.canWalk(v_row2, v_col2))
+          return true
+      }
+
+      return false
     }
     this.aStar = astar
   }
 
+  public canWalk(row, col) {
+    if ((row < 0 || row > 20 - 1) || (col < 0 || col > 6 - 1)) return false
+
+    return this.tiledMap.nodeList[row][col].state === 0
+  }
+
   public initPlayer() {
-    let start = {row: 8, col: 3}
-    let end = {row: 3, col: 5}
+    let start = {row: 7, col: 1}
+    this.curNode = [7, 1]
     let pnode = this.tiledMap.nodeList[start.row][start.col]
     this.player = this.add.image(pnode.x + pnode.width / 2, pnode.y + pnode.height / 2, "bunny.png")
 
-    this.pathArr = this.aStar.findPath(start.row, start.col, end.row, end.col)
-    console.log(JSON.stringify(this.pathArr))
-    this.move()
+    // this.pathArr = this.aStar.findPath(start.row, start.col, end.row, end.col)
+    // console.log(JSON.stringify(this.pathArr))
+    // this.move()
   }
 
   public move() {
     if (this.pathArr && this.pathArr.length > 0) {
-      let node = this.pathArr.pop()
-      this.curNode = node
-      let pnode = this.tiledMap.nodeList[node[0]][node[1]]
-      // console.log(pnode)
-      window["TweenMax"].to(this.player, 0.3, {
-        x: pnode.x + pnode.width / 2,
-        y: pnode.y + pnode.height / 2,
+      let current = this.curNode;
+      let next = this.pathArr.pop()
+      let node = this.tiledMap.nodeList[next[0]][next[1]]
+      let d = next[2]
+      let duration = (d === 'up' || d === 'down' || d === 'left' || d === 'right'
+        ? 0.3
+        : d === 'left_down' || d === 'right_up'
+          ? 0.5366726296958855
+          : 0.26833631484794274)
+      // console.log("currentNode:", currentNode)
+      // console.log("nextNode:", nextNode)
+      // console.log("\n")
+      // Math.sqrt((50-0)*(50-0)+(25-0)*(25-0)) = 55.9 0.3s
+      //                                          100  0.5366726296958855s
+      //                                          50   0.26833631484794274s
+
+      window["TweenMax"].to(this.player, duration, {
+        x: node.x + node.width / 2,
+        y: node.y + node.height / 2,
         ease: window["Power0"].easeNone,
-        onComplete: () => {
-          this.move()
-        }
+        onComplete: () => (this.move())
       })
+
+      this.curNode = next
     }
   }
 }

@@ -18,7 +18,7 @@ export default class HomeScene extends Phaser.Scene {
       scene: this,
       x: 100,
       y: 100,
-      w:180,
+      w: 180,
       hotArea: true,
       text: {t: '普通直角地图', s: {fontSize: '24px'}}
     })
@@ -29,7 +29,7 @@ export default class HomeScene extends Phaser.Scene {
       scene: this,
       x: 100,
       y: 200,
-      w:180,
+      w: 180,
       hotArea: true,
       text: {t: '45度地图', s: {fontSize: '24px'}}
     })
@@ -40,7 +40,7 @@ export default class HomeScene extends Phaser.Scene {
       scene: this,
       x: 100,
       y: 300,
-      w:180,
+      w: 180,
       hotArea: true,
       text: {t: '45度交错地图', s: {fontSize: '24px'}}
     })
@@ -56,5 +56,13 @@ export default class HomeScene extends Phaser.Scene {
     this.btn3.on('pointertap', () => {
       this.scene.start(StaggeredMapScene.NAME)
     })
+
+    // setTimeout(() => {
+    //   this.btn1.emit('pointertap')
+    // }, 500)
+
+    setTimeout(() => {
+      this.btn3.emit('pointertap')
+    }, 100)
   }
 }

@@ -8,6 +8,7 @@ export default class Node {
   public f; // 和值（走到终点消耗的代价值）
   public g; // 移动到 上、下、左、右、左上、右上、右下、左下、各点所需的权重值
   public h; // 上、下、左、右、左上、右上、右下、左下、各点到终点的预计权重值
+  public d; // 当前节点在上一个节点的哪个八方向上
 
   constructor(p = null, r = 0, c = 0, f = 0, g = 0, h = 0) {
     this.parent = p

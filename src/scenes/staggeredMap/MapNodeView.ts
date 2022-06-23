@@ -25,7 +25,8 @@ export default class MapNodeView extends Phaser.GameObjects.Container {
     this.add(graphics)
     this.bg = graphics
 
-    let txt = scene.add.text(0, 0, (row) + "," + (col), {
+    // let txt = scene.add.text(0, 0, `${row},${col} ${node.x},${node.y}`, {
+    let txt = scene.add.text(0, 0, `${row},${col}`, {
       fontSize: 10,
       color: "#ff0000"
     })

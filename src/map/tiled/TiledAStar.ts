@@ -1,12 +1,18 @@
 import Node from "../Node"
 
 export default class AStar {
-
-  public outFilter: (node: any) => boolean
-  public openList: Node[] = [] // 开启列表
-  public closeList: Node[] = [] // 已经走过的节点
-
+  public outFilter: (node:any) => boolean
+  // 开启列表
+  public openList: Node[] = []
+  // 已经走过的节点
+  public closeList: Node[] = []
   // 8方向节点信息
+  // row 当前八方向节点的行
+  // col 当前八方向节点的列
+  // r 八方向节点与当前节点的row的差值
+  // c 八方向节点与当前节点的rol的差值
+  // g 八方向节点的权值
+  // d 八方向节点的在当前节点的方向值
   private cupPoints: Array<{ row: number, col: number, r: number, c: number, g: number, d: string }> = [
     {row: 0, col: 0, r: -1, c: 0, g: 10, d: "up"}, // 上
     {row: 0, col: 0, r: 1, c: 0, g: 10, d: "down"}, // 下
@@ -15,20 +21,17 @@ export default class AStar {
     {row: 0, col: 0, r: -1, c: -1, g: 14, d: "left_up"}, // 左上
     {row: 0, col: 0, r: -1, c: 1, g: 14, d: "right_up"}, // 右上
     {row: 0, col: 0, r: 1, c: 1, g: 14, d: "right_down"}, // 右下
-    {row: 0, col: 0, r: 1, c: -1, g: 14, d: "right_down"}, // 左下
+    {row: 0, col: 0, r: 1, c: -1, g: 14, d: "left_down"}, // 左下
   ]
 
-  constructor() {
-  }
-
   public findPath(startRow: number, startCol: number, endRow: number, endCol: number) {
-    let endNode = null
-    let startNode = new Node(null, startRow, startCol, 0)
-    this.closeList.push(startNode)
-
-    let pathArr = null
     const MAX_EXTENDED_NODE_NUM = 150
     let loopCounter = 0
+    let endNode = null
+    let startNode = new Node(null, startRow, startCol, 0)
+
+    this.closeList.push(startNode)
+
     while (loopCounter++ < MAX_EXTENDED_NODE_NUM) {
       // console.log("loopCounter:", loopCounter)
 
@@ -52,10 +55,11 @@ export default class AStar {
         break
       }
 
-      // 从open表中删除加入close表
+      // 从open表中删除，加入close表
       this.closeList.push(node)
     }
 
+    let pathArr = null
     if (endNode) {
       pathArr = []
       while (endNode) {
@@ -83,7 +87,8 @@ export default class AStar {
 
       if (this.filterNeighbor(ele)) {
         let node = Node.getNode(snode, ele.row, ele.col)
-        node.g = ele.g + snode.g
+        // 计算移动到 八方向节点 所需的权重值
+        node.g = snode.g + ele.g
         node.h = this.diagonal(ele.row, ele.col, endRow, endCol)
         node.f = node.g + node.h
         node.parent = snode

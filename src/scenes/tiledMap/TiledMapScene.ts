@@ -61,18 +61,47 @@ export default class TiledMapScene extends Phaser.Scene {
 
     this.aStar = new AStar()
     this.aStar.outFilter = (node) => {
-      return this.tiledMap.nodeList[node.row][node.col].state === 1
+      if (!this.canWalk(node.row, node.col))
+        return true
+
+      //  检测两点之间是否有障碍,如果有则不能斜着走,反正则可以斜着走
+      switch (node.d) {
+        case "left_up":
+          if (!this.canWalk(node.row, node.col + 1) || !this.canWalk(node.row + 1, node.col))
+            return true
+          break;
+        case "right_up":
+          if (!this.canWalk(node.row, node.col - 1) || !this.canWalk(node.row + 1, node.col))
+            return true
+          break;
+        case "left_down":
+          if (!this.canWalk(node.row, node.col + 1) || !this.canWalk(node.row - 1, node.col))
+            return true
+          break;
+        case "right_down":
+          if (!this.canWalk(node.row, node.col - 1) || !this.canWalk(node.row - 1, node.col))
+            return true
+          break;
+      }
+      return false
     }
+  }
+
+  public canWalk(row, col) {
+    if ((row < 0 || row > 10 - 1) || (col < 0 || col > 10 - 1)) return false
+
+    return this.tiledMap.nodeList[row][col].state === 0
   }
 
   public initPlayer() {
     let start = {row: 2, col: 2}
+    this.curNode = start
     let end = {row: 2, col: 5}
     let pnode = this.tiledMap.nodeList[start.row][start.col]
     this.player = this.add.image(pnode.x + pnode.width / 2, pnode.y + pnode.height / 2, "bunny.png")
 
-    this.pathArr = this.aStar.findPath(start.row, start.col, end.row, end.col)
-    this.move()
+    // this.pathArr = this.aStar.findPath(start.row, start.col, end.row, end.col)
+    // this.move()
   }
 
   public move() {
