@@ -107,10 +107,11 @@ export default class StaggeredMapScene extends Phaser.Scene {
             break;
           case "right_up":
             h_row1 = node.row - 1
-            h_col1 = node.col - 1
+            h_col1 = (node.row % 2 === 0 ? node.col - 1 : node.col)
+
             v_row2 = node.row + 1
             v_col2 = (node.row % 2 === 0 ? node.col - 1 : node.col)
-            break;
+            break
           case "left_down":
             h_row1 = node.row + 1
             h_col1 = (node.row % 2 === 0 ? node.col : node.col + 1)
