@@ -1,13 +1,15 @@
-import ApplicationFacade from "./org/ApplicationFacade";
+import Scene from './Scene'
 
-export default class Game extends Phaser.Game {
-  public static app:ApplicationFacade
-  public static GAME_START:'game_start'
-  constructor(config: Phaser.Types.Core.GameConfig) {
-    super(config);
+export default class Game extends PIXI.Application {
+
+  constructor(config = {}) {
+    super(config)
+    this.init()
   }
-  protected start(){
-    super.start()
-    this.events.emit(Game.GAME_START)
+
+  init() {
+    document.body.prepend(this.view)
+
+    this.stage.addChild(new Scene());
   }
 }
