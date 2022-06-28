@@ -9,5 +9,5 @@ let mapHeight = 1440
 let game = new Game({
   width: stageWidth,
   height: stageHeight,
-  backgroundColor: 0x3433cc
+  backgroundColor: 0xcccccc
 })
