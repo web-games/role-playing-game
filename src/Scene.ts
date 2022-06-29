@@ -4,12 +4,15 @@ import AStarRoadSeeker from "./road/AStarRoadSeeker";
 import RoadNode from "./road/RoadNode";
 import Point from "./road/Point";
 
+console.log(mapData)
+
 export default class Scene extends PIXI.Container {
   private _roadDic: { [key: string]: RoadNode } = {};
   private _roadSeeker
 
-  roadNodeArr: any;
-  player: any;
+  public roadNodeArr: any;
+  public player: any;
+  public currentRoadNode: any;
 
   constructor() {
     super()
@@ -17,7 +20,51 @@ export default class Scene extends PIXI.Container {
   }
 
   init() {
-    console.log(mapData)
+    let start = null;
+    let tiledMapLayer = new PIXI.Container()
+    this.addChild(tiledMapLayer);
+    tiledMapLayer.interactive = true
+    tiledMapLayer.on('pointerdown', (event) => {
+      start = {x: event.data.global.x, y: event.data.global.y}
+    })
+
+    tiledMapLayer.on("pointerup", (event) => {
+      if (start) {
+        let {x: x1, y: y1} = start
+        let {x: x2, y: y2} = {x: event.data.global.x, y: event.data.global.y}
+        let distance = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
+        // console.log(x1, y1, x2, y2, 'distance:', distance)
+        if (distance < 1) {
+          let {x: targetX, y: targetY} = event.data.getLocalPosition(tiledMapLayer.parent)
+          // console.log(targetX, targetY);
+
+          var startPoint: Point = MapRoadUtils.instance.getWorldPointByPixel(this.player.x, this.player.y);
+          var targetPoint: Point = MapRoadUtils.instance.getWorldPointByPixel(targetX, targetY);
+
+          var startNode: RoadNode = this._roadDic[startPoint.x + "_" + startPoint.y];
+          var targetNode: RoadNode = this._roadDic[targetPoint.x + "_" + targetPoint.y];
+          // console.log(startNode, targetNode)
+
+          var roadNodeArr: RoadNode[] = this._roadSeeker.seekPath2(startNode, targetNode);
+
+          console.log(roadNodeArr)
+
+          let tml = window["TweenMax"].getTweensOf(this.player)
+          tml && tml.length && tml[0].kill()
+
+          this.roadNodeArr = roadNodeArr
+
+          this.move()
+        }
+      }
+      start = null
+    })
+
+    this.player = PIXI.Sprite.from('static/assets/bunny.png');
+    this.addChild(this.player)
+    this.player.x = 50;
+    this.player.y = 25;
+    this.player.anchor.set(0.5);
 
     MapRoadUtils.instance.updateMapInfo(mapData.mapWidth, mapData.mapHeight, mapData.nodeWidth, mapData.nodeHeight, mapData.type);
 
@@ -35,47 +82,49 @@ export default class Scene extends PIXI.Container {
 
         this._roadDic[node.cx + "_" + node.cy] = node;
 
-        let rhombusView = new MapNodeView(node)
-        this.addChild(rhombusView)
-        // if (i < 20 && j < 20) {
-        //   let rhombusView = new MapNodeView(node)
-        //   this.addChild(rhombusView)
-        // }
+        // let rhombusView = new MapNodeView(node)
+        // this.addChild(rhombusView)
+        if (i < 20 && j < 200) {
+          let rhombusView = new MapNodeView(node)
+          tiledMapLayer.addChild(rhombusView)
+        }
       }
     }
 
     this._roadSeeker = new AStarRoadSeeker(this._roadDic);
 
-    var startNode1: RoadNode = MapRoadUtils.instance.getNodeByWorldPoint(5, 25);
-    var targetNode1: RoadNode = MapRoadUtils.instance.getNodeByWorldPoint(6, 22);
+    console.log(this.getGridByPixel(50, 25))
+    console.log(this.getGridByPixel(150, 25))
+    console.log(this.getGridByPixel(250, 25))
+  }
 
-    var startNode: RoadNode = this._roadDic[startNode1.cx + "_" + startNode1.cy];
-    var targetNode: RoadNode = this._roadDic[targetNode1.cx + "_" + targetNode1.cy];
-    console.log(startNode, targetNode)
+  getGridByPixel(px, py) {
+    let offsetY = 23;
+    let w = 100;
+    let h = 50;
+    let x = Math.ceil(px / w - 0.5 + py / h);
+    let y = (offsetY - Math.ceil(px / w - 0.5 - py / h));
 
-    var roadNodeArr: RoadNode[] = this._roadSeeker.seekPath(startNode, targetNode); //点击到障碍点不会行走
+    let cx = Math.ceil(px / w - 0.5 + py / h) - 1;
+    let cy = (offsetY) - Math.ceil(px / w - 0.5 - py / h) + 1;
 
-    console.log(roadNodeArr)
-
-    this.player = PIXI.Sprite.from('static/assets/bunny.png');
-    this.addChild(this.player)
-    this.player.x = startNode.px;
-    this.player.y = startNode.py;
-    this.player.anchor.set(0.5);
-
-    this.roadNodeArr = roadNodeArr
-
-    this.move()
+    return {x, y, cx, cy}
   }
 
   move() {
     if (this.roadNodeArr && this.roadNodeArr.length > 0) {
-      let node = this.roadNodeArr.shift()
-      let duration = 1;
+      let targetRoadNode = this.roadNodeArr.shift()
+      console.log(targetRoadNode.toString())
+
+      let dx = Math.abs(this.player.x - targetRoadNode.px)
+      let dy = Math.abs(this.player.y - targetRoadNode.py)
+
+      let distance = Math.sqrt(dx * dx + dy * dy);
+      let duration = (distance / 100) * 1;
 
       window["TweenMax"].to(this.player, duration, {
-        x: node.px,
-        y: node.py,
+        x: targetRoadNode.px,
+        y: targetRoadNode.py,
         ease: window["Power0"].easeNone,
         onComplete: this.move.bind(this)
       })
@@ -108,20 +157,19 @@ class MapNodeView extends PIXI.Container {
     this.addChild(graphics)
 
     const graphics2 = new PIXI.Graphics()
-    // graphics2.lineStyle(1, 0x000000, 1);
-    graphics2.beginFill(0xffffff, 1);
-    graphics2.drawCircle(0, 0, 1);
+    graphics2.beginFill(0xff0000, 1);
+    graphics2.drawCircle(0, 0, 2);
     graphics2.endFill();
     this.addChild(graphics2)
 
     let style = {fontSize: 12, fill: 0xffffff, align: 'center'}
 
-    // let text3 = new PIXI.Text(`${px}/${py}`, style)
-    // this.addChild(text3)
-    // text3.anchor.set(0, 1)
-    // text3.x = -(w / 2) + 5
-    // text3.y = 0
-    // text3['angle'] = 31;
+    let text3 = new PIXI.Text(`${px}/${py}`, style)
+    this.addChild(text3)
+    text3.anchor.set(0, 1)
+    text3.x = -(w / 2) + 7
+    text3.y = 2
+    text3['angle'] = 31;
 
     let text2 = new PIXI.Text(`${dx}/${dy}`, style)
     this.addChild(text2)

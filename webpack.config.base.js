@@ -8,7 +8,7 @@ module.exports = {
   },
   output: {
     path: __dirname + '/dist',
-    publicPath: '/',
+    publicPath: './',
     filename: 'app.[hash:7].js'
   },
   resolve: {

@@ -77,7 +77,7 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/";
+/******/ 	__webpack_require__.p = "./";
 /******/
 /******/
 /******/ 	// Load entry module and return exports
@@ -133,6 +133,13 @@ var Game = /** @class */ (function (_super) {
             width: mapData_json_1.default.mapWidth,
             height: mapData_json_1.default.mapWidth
         });
+        var scroll = new Scroll({
+            content: scene,
+            maskWidth: stageWidth,
+            maskHeight: stageHeight,
+            contentWidth: mapData_json_1.default.mapWidth,
+            contentHeight: mapData_json_1.default.mapWidth
+        });
     };
     return Game;
 }(PIXI.Application));
@@ -180,6 +187,146 @@ var Drag = /** @class */ (function () {
     };
     return Drag;
 }());
+var Scroll = /** @class */ (function () {
+    function Scroll(option) {
+        var _a = this._options = option, content = _a.content, maskWidth = _a.maskWidth, maskHeight = _a.maskHeight, contentWidth = _a.contentWidth, contentHeight = _a.contentHeight;
+        this._content = content;
+        this._maskWidth = maskWidth;
+        this._maskHeight = maskHeight;
+        this._contentWidth = contentWidth;
+        this._contentHeight = contentHeight;
+        this._deceleration = 0.001; // 0.004 0.0006
+        this._content.on('pointerdown', this.onPointerDownListener, this);
+    }
+    Scroll.prototype.onPointerDownListener = function () {
+        var tw = window["TweenMax"].getTweensOf(this._content);
+        tw.length && tw[0].kill();
+        this._start = {
+            time: new Date().getTime(),
+            x: this._content.x,
+            y: this._content.y
+        };
+        this._content.on("pointerup", this.onPointerUpListener, this);
+        this._content.on("pointerout", this.onPointerOutListener, this);
+    };
+    Scroll.prototype.onPointerUpListener = function () {
+        if (this._start) {
+            var duration = new Date().getTime() - this._start.time;
+            var momentumX = this.momentum(this._content.x, this._start.x, duration, this.maxScrollLeft, 0, this._deceleration);
+            var momentumY = this.momentum(this._content.y, this._start.y, duration, this.maxScrollTop, 0, this._deceleration);
+            var newX = momentumX.destination;
+            var newY = momentumY.destination;
+            var time = Math.max(momentumX.duration, momentumY.duration);
+            // console.log('start xy:', this._startX, this._startY)
+            // console.log('cur xy:', this.parentContainer.x, this.parentContainer.y)
+            // console.log('end xy:', newX, newY)
+            // console.log('time:', momentumX.duration, momentumY.duration, time)
+            // console.log("newX:%d newY:%d", newX, newY)
+            //
+            var vars = {
+                x: newX,
+                y: newY,
+                ease: window["Power2"].easeOut,
+                onUpdate: function () {
+                },
+                onComplete: function () {
+                }
+            };
+            window["TweenMax"].to(this._content, time / 1000, vars);
+        }
+        this._content.off("pointerup", this.onPointerUpListener, this);
+        this._content.off("pointerout", this.onPointerOutListener, this);
+    };
+    Scroll.prototype.onPointerOutListener = function () {
+        this.onPointerUpListener();
+    };
+    /**
+     * 动量计算函数
+     *
+     * @param current 当前位置
+     * @param start 初始位置
+     * @param time 初始位置到当前位置运动时间（毫秒）
+     * @param lowerMargin 最大目的地点
+     * @param wrapperSize
+     * @param deceleration 滚动动量，就是负的加速度（减速越大越快，建议不大）
+     *
+     * @return {destination:number,duration:number}
+     * */
+    Scroll.prototype.momentum = function (current, start, time, lowerMargin, wrapperSize, deceleration) {
+        if (deceleration === void 0) { deceleration = 0.0006; }
+        // console.log(current, start, time, lowerMargin, wrapperSize, deceleration)
+        // 计算拖动的距离 = 当前位置 - 初始位置
+        var distance = current - start;
+        // 计算拖动的速度 = (移动距离/时间)
+        var speed = Math.abs(distance) / time;
+        // 记录终点位置
+        var destination;
+        // 记录到终点位置应持续时间
+        var duration;
+        // V1是初速度
+        // V2是末速度
+        // a是加速度
+        // t为时间
+        // x是位移距离
+        var v1 = speed;
+        var v2 = 0;
+        var a = deceleration;
+        var t;
+        var x;
+        // 计算在给定加速度情况下，由初速度减至0所运动的距离，即v*(0-v)/deceleration
+        // v2=v1+at
+        // x=v1t+(1/2)at^2
+        t = (v2 - v1) / a;
+        x = (v1 * t) + ((1 / 2) * a * t * t);
+        destination = current + x * (distance > 0 ? -1 : 1);
+        duration = speed / deceleration;
+        if (destination < lowerMargin) {
+            destination = wrapperSize ? lowerMargin - (wrapperSize / 2.5 * (speed / 8)) : lowerMargin;
+            distance = Math.abs(destination - current);
+            duration = distance / speed;
+        }
+        else if (destination > 0) {
+            destination = wrapperSize ? wrapperSize / 2.5 * (speed / 8) : 0;
+            distance = Math.abs(current) + destination;
+            duration = distance / speed;
+        }
+        return {
+            destination: Math.round(destination),
+            duration: duration
+        };
+    };
+    Object.defineProperty(Scroll.prototype, "contentWidth", {
+        set: function (val) {
+            this._contentWidth = val;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Scroll.prototype, "contentHeight", {
+        set: function (val) {
+            this._contentHeight = val;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Scroll.prototype, "maxScrollLeft", {
+        // 最大滚动距离 横向
+        get: function () {
+            return this._maskWidth - this._contentWidth;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Scroll.prototype, "maxScrollTop", {
+        // 最大滚动距离 纵向
+        get: function () {
+            return this._maskHeight - this._contentHeight;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return Scroll;
+}());
 
 
 /***/ }),
@@ -213,6 +360,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mapData_json_1 = __importDefault(__webpack_require__(/*! ./mapData.json */ "./src/mapData.json"));
 var MapRoadUtils_1 = __importDefault(__webpack_require__(/*! ./road/MapRoadUtils */ "./src/road/MapRoadUtils.ts"));
 var AStarRoadSeeker_1 = __importDefault(__webpack_require__(/*! ./road/AStarRoadSeeker */ "./src/road/AStarRoadSeeker.ts"));
+console.log(mapData_json_1.default);
 var Scene = /** @class */ (function (_super) {
     __extends(Scene, _super);
     function Scene() {
@@ -222,7 +370,43 @@ var Scene = /** @class */ (function (_super) {
         return _this;
     }
     Scene.prototype.init = function () {
-        console.log(mapData_json_1.default);
+        var _this = this;
+        var start = null;
+        var tiledMapLayer = new PIXI.Container();
+        this.addChild(tiledMapLayer);
+        tiledMapLayer.interactive = true;
+        tiledMapLayer.on('pointerdown', function (event) {
+            start = { x: event.data.global.x, y: event.data.global.y };
+        });
+        tiledMapLayer.on("pointerup", function (event) {
+            if (start) {
+                var x1 = start.x, y1 = start.y;
+                var _a = { x: event.data.global.x, y: event.data.global.y }, x2 = _a.x, y2 = _a.y;
+                var distance = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+                // console.log(x1, y1, x2, y2, 'distance:', distance)
+                if (distance < 1) {
+                    var _b = event.data.getLocalPosition(tiledMapLayer.parent), targetX = _b.x, targetY = _b.y;
+                    // console.log(targetX, targetY);
+                    var startPoint = MapRoadUtils_1.default.instance.getWorldPointByPixel(_this.player.x, _this.player.y);
+                    var targetPoint = MapRoadUtils_1.default.instance.getWorldPointByPixel(targetX, targetY);
+                    var startNode = _this._roadDic[startPoint.x + "_" + startPoint.y];
+                    var targetNode = _this._roadDic[targetPoint.x + "_" + targetPoint.y];
+                    // console.log(startNode, targetNode)
+                    var roadNodeArr = _this._roadSeeker.seekPath2(startNode, targetNode);
+                    console.log(roadNodeArr);
+                    var tml = window["TweenMax"].getTweensOf(_this.player);
+                    tml && tml.length && tml[0].kill();
+                    _this.roadNodeArr = roadNodeArr;
+                    _this.move();
+                }
+            }
+            start = null;
+        });
+        this.player = PIXI.Sprite.from('static/assets/bunny.png');
+        this.addChild(this.player);
+        this.player.x = 50;
+        this.player.y = 25;
+        this.player.anchor.set(0.5);
         MapRoadUtils_1.default.instance.updateMapInfo(mapData_json_1.default.mapWidth, mapData_json_1.default.mapHeight, mapData_json_1.default.nodeWidth, mapData_json_1.default.nodeHeight, mapData_json_1.default.type);
         var len = mapData_json_1.default.roadDataArr.length;
         var len2 = mapData_json_1.default.roadDataArr[0].length;
@@ -233,37 +417,40 @@ var Scene = /** @class */ (function (_super) {
                 var node = MapRoadUtils_1.default.instance.getNodeByDerect(j, i);
                 node.value = value;
                 this._roadDic[node.cx + "_" + node.cy] = node;
-                var rhombusView = new MapNodeView(node);
-                this.addChild(rhombusView);
-                // if (i < 20 && j < 20) {
-                //   let rhombusView = new MapNodeView(node)
-                //   this.addChild(rhombusView)
-                // }
+                // let rhombusView = new MapNodeView(node)
+                // this.addChild(rhombusView)
+                if (i < 20 && j < 200) {
+                    var rhombusView = new MapNodeView(node);
+                    tiledMapLayer.addChild(rhombusView);
+                }
             }
         }
         this._roadSeeker = new AStarRoadSeeker_1.default(this._roadDic);
-        var startNode1 = MapRoadUtils_1.default.instance.getNodeByWorldPoint(5, 25);
-        var targetNode1 = MapRoadUtils_1.default.instance.getNodeByWorldPoint(6, 22);
-        var startNode = this._roadDic[startNode1.cx + "_" + startNode1.cy];
-        var targetNode = this._roadDic[targetNode1.cx + "_" + targetNode1.cy];
-        console.log(startNode, targetNode);
-        var roadNodeArr = this._roadSeeker.seekPath(startNode, targetNode); //点击到障碍点不会行走
-        console.log(roadNodeArr);
-        this.player = PIXI.Sprite.from('static/assets/bunny.png');
-        this.addChild(this.player);
-        this.player.x = startNode.px;
-        this.player.y = startNode.py;
-        this.player.anchor.set(0.5);
-        this.roadNodeArr = roadNodeArr;
-        this.move();
+        console.log(this.getGridByPixel(50, 25));
+        console.log(this.getGridByPixel(150, 25));
+        console.log(this.getGridByPixel(250, 25));
+    };
+    Scene.prototype.getGridByPixel = function (px, py) {
+        var offsetY = 23;
+        var w = 100;
+        var h = 50;
+        var x = Math.ceil(px / w - 0.5 + py / h);
+        var y = (offsetY - Math.ceil(px / w - 0.5 - py / h));
+        var cx = Math.ceil(px / w - 0.5 + py / h) - 1;
+        var cy = (offsetY) - Math.ceil(px / w - 0.5 - py / h) + 1;
+        return { x: x, y: y, cx: cx, cy: cy };
     };
     Scene.prototype.move = function () {
         if (this.roadNodeArr && this.roadNodeArr.length > 0) {
-            var node = this.roadNodeArr.shift();
-            var duration = 1;
+            var targetRoadNode = this.roadNodeArr.shift();
+            console.log(targetRoadNode.toString());
+            var dx = Math.abs(this.player.x - targetRoadNode.px);
+            var dy = Math.abs(this.player.y - targetRoadNode.py);
+            var distance = Math.sqrt(dx * dx + dy * dy);
+            var duration = (distance / 100) * 1;
             window["TweenMax"].to(this.player, duration, {
-                x: node.px,
-                y: node.py,
+                x: targetRoadNode.px,
+                y: targetRoadNode.py,
                 ease: window["Power0"].easeNone,
                 onComplete: this.move.bind(this)
             });
@@ -293,18 +480,17 @@ var MapNodeView = /** @class */ (function (_super) {
         graphics.endFill();
         _this.addChild(graphics);
         var graphics2 = new PIXI.Graphics();
-        // graphics2.lineStyle(1, 0x000000, 1);
-        graphics2.beginFill(0xffffff, 1);
-        graphics2.drawCircle(0, 0, 1);
+        graphics2.beginFill(0xff0000, 1);
+        graphics2.drawCircle(0, 0, 2);
         graphics2.endFill();
         _this.addChild(graphics2);
         var style = { fontSize: 12, fill: 0xffffff, align: 'center' };
-        // let text3 = new PIXI.Text(`${px}/${py}`, style)
-        // this.addChild(text3)
-        // text3.anchor.set(0, 1)
-        // text3.x = -(w / 2) + 5
-        // text3.y = 0
-        // text3['angle'] = 31;
+        var text3 = new PIXI.Text(px + "/" + py, style);
+        _this.addChild(text3);
+        text3.anchor.set(0, 1);
+        text3.x = -(w / 2) + 7;
+        text3.y = 2;
+        text3['angle'] = 31;
         var text2 = new PIXI.Text(dx + "/" + dy, style);
         _this.addChild(text2);
         text2.anchor.set(0.5, 0.5);
@@ -1077,7 +1263,7 @@ var MapRoad45Angle = /** @class */ (function () {
         this._halfNodeHeight = halfNodeHeight;
     }
     /**
-     *根据地图平面像素坐标获得路节点
+     * 根据地图平面像素坐标获得路节点
      * @param x
      * @param y
      * @return
@@ -1097,9 +1283,9 @@ var MapRoad45Angle = /** @class */ (function () {
         return node;
     };
     /**
-     *根据路点平面坐标点获得路节点
-     * @param px
-     * @param py
+     * 根据路点平面坐标点获得路节点
+     * @param dx
+     * @param dy
      * @return
      *
      */
@@ -1116,7 +1302,7 @@ var MapRoad45Angle = /** @class */ (function () {
         return node;
     };
     /**
-     *根据路点场景世界坐标获得路节点
+     * 根据路点场景世界坐标获得路节点
      * @param wx
      * @param wy
      * @return
@@ -1127,7 +1313,7 @@ var MapRoad45Angle = /** @class */ (function () {
         return this.getNodeByPixel(point.x, point.y);
     };
     /**
-     *根据像素坐标得到场景世界坐标
+     * 根据像素坐标得到场景世界坐标
      * @param x
      * @param y
      * @return
@@ -1139,7 +1325,7 @@ var MapRoad45Angle = /** @class */ (function () {
         return new Point_1.default(cx, cy);
     };
     /**
-     *根据世界坐标获得像素坐标
+     * 根据世界坐标获得像素坐标
      * @param cx
      * @param cy
      * @return
@@ -1366,4 +1552,4 @@ exports.default = RoadNode;
 /***/ })
 
 /******/ });
-//# sourceMappingURL=app.2e7c8c0.js.map
+//# sourceMappingURL=app.cb3fdba.js.map
