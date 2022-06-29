@@ -550,7 +550,7 @@ export default class AStarRoadSeeker implements IRoadSeeker {
             var cy:number = node.cy + this._round[i][1];
             var node2:RoadNode = this._roadNodes[cx + "_" + cy] as RoadNode
             
-            if(node2 != null && node2 != this._startNode && node2.value != 1 && !this.isInCloseList(node2) && !this.inInCorner(node2))
+            if(node2 != null && node2 != this._startNode && node2.value != 1 && !this.isInCloseList(node2) && !this.isInOpenList(node2) && !this.inInCorner(node2))
             {
                 this.setNodeF(node2);
             }
@@ -574,25 +574,29 @@ export default class AStarRoadSeeker implements IRoadSeeker {
             g = this._currentNode.g + this.COST_DIAGONAL;
         }
         
-        if(this.isInOpenList(node))
-        {
-            if(g < node.g)
-            {
-                node.g = g;
-                
-            }else
-            {
-                return;
-            }
-        }else
-        {
-            node.g = g;
-            this._openlist.push(node);
-        }
+        // if(this.isInOpenList(node))
+        // {
+        //     if(g < node.g)
+        //     {
+        //         node.g = g;
+        //
+        //     }else
+        //     {
+        //         return;
+        //     }
+        // }else
+        // {
+        //
+        //
+        // }
+
+      node.g = g;
         
         node.parent = this._currentNode;
         node.h = (Math.abs(this._targetNode.cx - node.cx) + Math.abs(this._targetNode.cy - node.cy)) * this.COST_STRAIGHT;
         node.f = node.g + node.h;
+
+        this._openlist.push(node);
     }
     
     /**

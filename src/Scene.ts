@@ -99,16 +99,13 @@ export default class Scene extends PIXI.Container {
   }
 
   getGridByPixel(px, py) {
-    let offsetY = 23;
+    let offsetY = mapData.roadDataArr[0].length - 1;
     let w = 100;
     let h = 50;
-    let x = Math.ceil(px / w - 0.5 + py / h);
+    let x = Math.ceil(px / w - 0.5 + py / h) - 1;
     let y = (offsetY - Math.ceil(px / w - 0.5 - py / h));
 
-    let cx = Math.ceil(px / w - 0.5 + py / h) - 1;
-    let cy = (offsetY) - Math.ceil(px / w - 0.5 - py / h) + 1;
-
-    return {x, y, cx, cy}
+    return {x, y}
   }
 
   move() {

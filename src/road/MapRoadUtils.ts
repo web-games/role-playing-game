@@ -480,8 +480,8 @@ class MapRoad45Angle implements IMapRoad
 	 */
 	public getWorldPointByPixel(x:number,y:number):Point
 	{
-		var cx:number = Math.ceil(x/this._nodeWidth - 0.5 + y/this._nodeHeight) - 1;
-		var cy:number = (this._col - 1) - Math.ceil(x/this._nodeWidth - 0.5 - y/this._nodeHeight);
+		var cx:number = Math.ceil(x/this._nodeWidth - 0.5 + y/this._nodeHeight)-1;
+		var cy:number = (this._col - 1) - Math.ceil(x/this._nodeWidth - 0.5 - y/this._nodeHeight)-1;
 
 		return new Point(cx,cy);
 	}

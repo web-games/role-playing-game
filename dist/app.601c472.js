@@ -431,14 +431,12 @@ var Scene = /** @class */ (function (_super) {
         console.log(this.getGridByPixel(250, 25));
     };
     Scene.prototype.getGridByPixel = function (px, py) {
-        var offsetY = 23;
+        var offsetY = mapData_json_1.default.roadDataArr[0].length - 1;
         var w = 100;
         var h = 50;
-        var x = Math.ceil(px / w - 0.5 + py / h);
+        var x = Math.ceil(px / w - 0.5 + py / h) - 1;
         var y = (offsetY - Math.ceil(px / w - 0.5 - py / h));
-        var cx = Math.ceil(px / w - 0.5 + py / h) - 1;
-        var cy = (offsetY) - Math.ceil(px / w - 0.5 - py / h) + 1;
-        return { x: x, y: y, cx: cx, cy: cy };
+        return { x: x, y: y };
     };
     Scene.prototype.move = function () {
         if (this.roadNodeArr && this.roadNodeArr.length > 0) {
@@ -942,7 +940,7 @@ var AStarRoadSeeker = /** @class */ (function () {
             var cx = node.cx + this._round[i][0];
             var cy = node.cy + this._round[i][1];
             var node2 = this._roadNodes[cx + "_" + cy];
-            if (node2 != null && node2 != this._startNode && node2.value != 1 && !this.isInCloseList(node2) && !this.inInCorner(node2)) {
+            if (node2 != null && node2 != this._startNode && node2.value != 1 && !this.isInCloseList(node2) && !this.isInOpenList(node2) && !this.inInCorner(node2)) {
                 this.setNodeF(node2);
             }
         }
@@ -960,21 +958,26 @@ var AStarRoadSeeker = /** @class */ (function () {
         else {
             g = this._currentNode.g + this.COST_DIAGONAL;
         }
-        if (this.isInOpenList(node)) {
-            if (g < node.g) {
-                node.g = g;
-            }
-            else {
-                return;
-            }
-        }
-        else {
-            node.g = g;
-            this._openlist.push(node);
-        }
+        // if(this.isInOpenList(node))
+        // {
+        //     if(g < node.g)
+        //     {
+        //         node.g = g;
+        //
+        //     }else
+        //     {
+        //         return;
+        //     }
+        // }else
+        // {
+        //
+        //
+        // }
+        node.g = g;
         node.parent = this._currentNode;
         node.h = (Math.abs(this._targetNode.cx - node.cx) + Math.abs(this._targetNode.cy - node.cy)) * this.COST_STRAIGHT;
         node.f = node.g + node.h;
+        this._openlist.push(node);
     };
     /**
      *节点是否在开启列表
@@ -1321,7 +1324,7 @@ var MapRoad45Angle = /** @class */ (function () {
      */
     MapRoad45Angle.prototype.getWorldPointByPixel = function (x, y) {
         var cx = Math.ceil(x / this._nodeWidth - 0.5 + y / this._nodeHeight) - 1;
-        var cy = (this._col - 1) - Math.ceil(x / this._nodeWidth - 0.5 - y / this._nodeHeight);
+        var cy = (this._col - 1) - Math.ceil(x / this._nodeWidth - 0.5 - y / this._nodeHeight) - 1;
         return new Point_1.default(cx, cy);
     };
     /**
@@ -1552,4 +1555,4 @@ exports.default = RoadNode;
 /***/ })
 
 /******/ });
-//# sourceMappingURL=app.cb3fdba.js.map
+//# sourceMappingURL=app.601c472.js.map
