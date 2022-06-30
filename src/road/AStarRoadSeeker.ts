@@ -56,7 +56,16 @@ export default class AStarRoadSeeker {
   /**
    *用于检索一个节点周围8个点的向量数组
    */
-  private _round: number[][] = [[0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]]
+  private _round: number[][] = [
+    [0, -1, 10],
+    [1, -1, 14],
+    [1, 0, 10],
+    [1, 1, 14],
+    [0, 1, 10],
+    [-1, 1, 14],
+    [-1, 0, 10],
+    [-1, -1, 14]
+  ]
 
   private handle: any = -1;
 
@@ -67,6 +76,13 @@ export default class AStarRoadSeeker {
 
   public constructor(roadNodes: { [key: string]: RoadNode }) {
     this._roadNodes = roadNodes;
+  }
+
+  public resetText() {
+    for (let s in this._roadNodes) {
+      let node = this._roadNodes[s];
+      node.ele.htxt.visible = false;
+    }
   }
 
 
@@ -144,7 +160,10 @@ export default class AStarRoadSeeker {
     if (!this._startNode || !this._targetNode)
       return [];
 
+    // this._startNode.g = 0;
+
     console.log(`from:(${startNode.cx},${startNode.cy})`, ` to:(${targetNode.cx},${targetNode.cy})`)
+    this.resetText();
 
     this._openlist = [];
     this._closelist = [];
@@ -499,16 +518,17 @@ export default class AStarRoadSeeker {
    *
    */
   private searchRoundNodes(node: RoadNode): void {
-    console.log('searchRoundNodes:',node.toString2())
-    for (var i: number = 0; i < this._round.length; i++) {
-      var cx: number = node.cx + this._round[i][0];
-      var cy: number = node.cy + this._round[i][1];
-      var node2: RoadNode = this._roadNodes[cx + "_" + cy] as RoadNode
+    console.log('searchRoundNodes:', node.toString2())
 
+    this._round.forEach(([r, c, g], idx) => {
+      var cx: number = node.cx + r;
+      var cy: number = node.cy + c;
+      var node2: RoadNode = this._roadNodes[cx + "_" + cy] as RoadNode
+      console.log(`i:`, idx, node2)
       if (node2 != null && node2 != this._startNode && node2.value !== 1 && !this.isInCloseList(node2) && !this.isInCorner(node2)) {
         this.setNodeF(node2);
       }
-    }
+    })
     console.log('\n')
   }
 
@@ -534,8 +554,8 @@ export default class AStarRoadSeeker {
       }
     } else {
       node.g = g;
+      this._openlist.push(node);
     }
-
 
     node.h = (Math.abs(this._targetNode.cx - node.cx) + Math.abs(this._targetNode.cy - node.cy)) * this.COST_STRAIGHT;
     node.f = node.g + node.h;
@@ -543,7 +563,7 @@ export default class AStarRoadSeeker {
 
     console.log('setNodeF:', node.toString2())
 
-    this._openlist.push(node);
+    // this._openlist.push(node);
   }
 
   /**

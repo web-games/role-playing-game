@@ -86,6 +86,7 @@ export default class Scene extends PIXI.Container {
         if (i < 200 && j < 200) {
           let rhombusView = new MapNodeView(node)
           tiledMapLayer.addChild(rhombusView)
+          node.ele = rhombusView;
         }
       }
     }
@@ -130,6 +131,7 @@ export default class Scene extends PIXI.Container {
 
 class MapNodeView extends PIXI.Container {
   node: any;
+  htxt: any;
 
   constructor(node) {
     super()
@@ -180,5 +182,20 @@ class MapNodeView extends PIXI.Container {
     text.x = (w / 2) - 3
     text.y = -3
     text['angle'] = 31;
+
+    let htxt = new PIXI.Text(`${cx}/${cy}`, style)
+    this.addChild(htxt)
+    htxt.anchor.set(0, 1)
+    htxt.x = -(w / 2) + 7
+    htxt.y = 2
+    htxt['angle'] = 31;
+    htxt.visible = false;
+    this.htxt = htxt;
+
+  }
+
+  resetText() {
+    this.htxt.visible = true;
+    this.htxt.text = `${this.node.g},${this.node.h},${this.node.f}`;
   }
 }
