@@ -46,7 +46,6 @@ export default class Scene extends PIXI.Container {
           // console.log(startNode, targetNode)
 
           var roadNodeArr: RoadNode[] = this._roadSeeker.seekPath2(startNode, targetNode);
-
           console.log(roadNodeArr)
 
           let tml = window["TweenMax"].getTweensOf(this.player)
@@ -93,9 +92,9 @@ export default class Scene extends PIXI.Container {
 
     this._roadSeeker = new AStarRoadSeeker(this._roadDic);
 
-    console.log(this.getGridByPixel(50, 25))
-    console.log(this.getGridByPixel(150, 25))
-    console.log(this.getGridByPixel(250, 25))
+    // console.log(this.getGridByPixel(50, 25))
+    // console.log(this.getGridByPixel(150, 25))
+    // console.log(this.getGridByPixel(250, 25))
   }
 
   getGridByPixel(px, py) {
@@ -154,26 +153,26 @@ class MapNodeView extends PIXI.Container {
     this.addChild(graphics)
 
     const graphics2 = new PIXI.Graphics()
-    graphics2.beginFill(0xff0000, 1);
+    graphics2.beginFill(0xffffff, 1);
     graphics2.drawCircle(0, 0, 2);
     graphics2.endFill();
     this.addChild(graphics2)
 
     let style = {fontSize: 12, fill: 0xffffff, align: 'center'}
 
-    let text3 = new PIXI.Text(`${px}/${py}`, style)
-    this.addChild(text3)
-    text3.anchor.set(0, 1)
-    text3.x = -(w / 2) + 7
-    text3.y = 2
-    text3['angle'] = 31;
-
-    let text2 = new PIXI.Text(`${dx}/${dy}`, style)
-    this.addChild(text2)
-    text2.anchor.set(0.5, 0.5)
-    text2.x = 0
-    text2.y = 0
-    text2['angle'] = 31;
+    // let text3 = new PIXI.Text(`${px}/${py}`, style)
+    // this.addChild(text3)
+    // text3.anchor.set(0, 1)
+    // text3.x = -(w / 2) + 7
+    // text3.y = 2
+    // text3['angle'] = 31;
+    //
+    // let text2 = new PIXI.Text(`${dx}/${dy}`, style)
+    // this.addChild(text2)
+    // text2.anchor.set(0.5, 0.5)
+    // text2.x = 0
+    // text2.y = 0
+    // text2['angle'] = 31;
 
     let text = new PIXI.Text(`${cx}/${cy}`, style)
     text.anchor.set(1, 0);

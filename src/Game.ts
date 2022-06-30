@@ -14,19 +14,19 @@ export default class Game extends PIXI.Application {
     let scene = new Scene();
     this.stage.addChild(scene);
 
-    let drag = new Drag({
-      ele: scene,
-      width: mapWidth,
-      height: mapHeight
-    })
-
-    let scroll = new Scroll({
-      content: scene,
-      maskWidth: stageWidth,
-      maskHeight: stageHeight,
-      contentWidth: mapWidth,
-      contentHeight: mapHeight
-    })
+    // let drag = new Drag({
+    //   ele: scene,
+    //   width: mapWidth,
+    //   height: mapHeight
+    // })
+    //
+    // let scroll = new Scroll({
+    //   content: scene,
+    //   maskWidth: stageWidth,
+    //   maskHeight: stageHeight,
+    //   contentWidth: mapWidth,
+    //   contentHeight: mapHeight
+    // })
   }
 }
 

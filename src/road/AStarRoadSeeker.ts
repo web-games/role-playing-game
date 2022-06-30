@@ -1,12 +1,11 @@
 import RoadNode from "./RoadNode";
-import IRoadSeeker from "./IRoadSeeker";
 
 /**
  * A*寻路算法
  * @author 落日故人 QQ 583051842
  *
  */
-export default class AStarRoadSeeker implements IRoadSeeker {
+export default class AStarRoadSeeker {
 
 
   /**
@@ -86,7 +85,9 @@ export default class AStarRoadSeeker implements IRoadSeeker {
     if (!this._startNode || !this._targetNode)
       return [];
 
-    if (this._targetNode.value == 1) {
+    console.log(`from: ${startNode.cx},${startNode.cy}`, ` to: ${targetNode.cx},${targetNode.cy}`)
+
+    if (this._targetNode.value === 1) {
       console.log("目标不可达到：");
       return [];
     }
@@ -143,11 +144,7 @@ export default class AStarRoadSeeker implements IRoadSeeker {
     if (!this._startNode || !this._targetNode)
       return [];
 
-    /*if(this._targetNode.value == 1)
-    {
-        console.log("目标不可达到：");
-        return [];
-    }*/
+    console.log(`from:(${startNode.cx},${startNode.cy})`, ` to:(${targetNode.cx},${targetNode.cy})`)
 
     this._openlist = [];
     this._closelist = [];
@@ -185,7 +182,8 @@ export default class AStarRoadSeeker implements IRoadSeeker {
 
       if (this._currentNode == this._targetNode) {
         console.log("找到目标计算步骤为：", step);
-        return this.getPath();
+        return this.getPath2();
+        // return this.getPath();
       } else {
         this._closelist.push(this._currentNode);
       }
@@ -209,6 +207,19 @@ export default class AStarRoadSeeker implements IRoadSeeker {
     }
 
     return 0;
+  }
+
+  private getPath2(): Array<RoadNode> {
+    var nodeArr: Array<RoadNode> = [];
+    var node: RoadNode = this._targetNode;
+
+    while (node != this._startNode) {
+      nodeArr.unshift(node);
+      node = node.parent;
+    }
+
+    nodeArr.unshift(this._startNode);
+    return nodeArr;
   }
 
   /**
@@ -488,15 +499,17 @@ export default class AStarRoadSeeker implements IRoadSeeker {
    *
    */
   private searchRoundNodes(node: RoadNode): void {
+    console.log('searchRoundNodes:',node.toString2())
     for (var i: number = 0; i < this._round.length; i++) {
       var cx: number = node.cx + this._round[i][0];
       var cy: number = node.cy + this._round[i][1];
       var node2: RoadNode = this._roadNodes[cx + "_" + cy] as RoadNode
 
-      if (node2 != null && node2 != this._startNode && node2.value != 1 && !this.isInCloseList(node2) && !this.inInCorner(node2)) {
+      if (node2 != null && node2 != this._startNode && node2.value !== 1 && !this.isInCloseList(node2) && !this.isInCorner(node2)) {
         this.setNodeF(node2);
       }
     }
+    console.log('\n')
   }
 
   /**
@@ -516,18 +529,21 @@ export default class AStarRoadSeeker implements IRoadSeeker {
     if (this.isInOpenList(node)) {
       if (g < node.g) {
         node.g = g;
-
       } else {
         return;
       }
     } else {
       node.g = g;
-      this._openlist.push(node);
     }
 
-    node.parent = this._currentNode;
+
     node.h = (Math.abs(this._targetNode.cx - node.cx) + Math.abs(this._targetNode.cy - node.cy)) * this.COST_STRAIGHT;
     node.f = node.g + node.h;
+    node.parent = this._currentNode;
+
+    console.log('setNodeF:', node.toString2())
+
+    this._openlist.push(node);
   }
 
   /**
@@ -553,7 +569,7 @@ export default class AStarRoadSeeker implements IRoadSeeker {
    * @return
    *
    */
-  private inInCorner(node: RoadNode): Boolean {
+  private isInCorner(node: RoadNode): Boolean {
     if (node.cx == this._currentNode.cx || node.cy == this._currentNode.cy) {
       return false;
     }

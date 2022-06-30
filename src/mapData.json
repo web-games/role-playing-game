@@ -1,9 +1,7 @@
 {
-  "name": "mapData",
-  "bgName": "37502319-9924-4436-bd93-a6cc58684486",
   "type": 0,
-  "mapWidth": 1000,
-  "mapHeight": 750,
+  "mapWidth": 500,
+  "mapHeight": 500,
   "nodeWidth": 100,
   "nodeHeight": 50,
   "roadDataArr": [

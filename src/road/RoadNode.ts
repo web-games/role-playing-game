@@ -22,13 +22,20 @@ export default class RoadNode {
     {
     }
     
+    public toString2():String
+    {
+        return "路点世界坐标：（" + this._cx + "," + this._cy +"),  " +
+            ` g=${this.g}`+
+            ` f=${this.f}`+
+            ` h=${this.h}`;
+    }
     public toString():String
     {
         return "路点像素坐标：（" + this._px + "," + this._py +"),  " +
-            "路点世界坐标：（" + this._cx + "," + this._cy +"),  " + 
+            "路点世界坐标：（" + this._cx + "," + this._cy +"),  " +
             "路点平面直角坐标：（" + this._dx + "," + this._dy +")";
     }
-    
+
     public get px():number
     {
         return this._px;
