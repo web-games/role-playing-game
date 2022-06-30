@@ -4,7 +4,7 @@ import AStarRoadSeeker from "./road/AStarRoadSeeker";
 import RoadNode from "./road/RoadNode";
 import Point from "./road/Point";
 
-console.log('mapdata6:', mapData)
+console.log('mapdata8:', mapData)
 
 export default class Scene extends PIXI.Container {
   private _roadDic: any = {};
@@ -84,7 +84,7 @@ export default class Scene extends PIXI.Container {
 
         // let rhombusView = new MapNodeView(node)
         // this.addChild(rhombusView)
-        if (i < 20 && j < 200) {
+        if (i < 200 && j < 200) {
           let rhombusView = new MapNodeView(node)
           tiledMapLayer.addChild(rhombusView)
         }
@@ -143,7 +143,7 @@ class MapNodeView extends PIXI.Container {
     let h = mapData.nodeHeight
 
     var graphics = new PIXI.Graphics()
-    graphics.beginFill(value === 0 ? 0x00000 : 0xFF0000, 1)
+    graphics.beginFill(value === 0 ? 0x00000 : 0xFF0000, value === 0 ? 0.5 : 1)
     graphics.lineStyle(1, 0xffffff, 0.3)
     graphics.moveTo(-w / 2, 0)
     graphics.lineTo(0, -h / 2)

@@ -20,7 +20,8 @@ module.exports = {
     static: "./",
     compress: true,
     port: 9000,
-    hot: true
+    hot: false,
+    liveReload: false,
   },
   plugins: [
     new HtmlWebpackPlugin({
