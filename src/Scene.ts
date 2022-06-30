@@ -4,11 +4,11 @@ import AStarRoadSeeker from "./road/AStarRoadSeeker";
 import RoadNode from "./road/RoadNode";
 import Point from "./road/Point";
 
-console.log(mapData)
+console.log('mapdata6:', mapData)
 
 export default class Scene extends PIXI.Container {
-  private _roadDic: { [key: string]: RoadNode } = {};
-  private _roadSeeker
+  private _roadDic: any = {};
+  private _roadSeeker: any;
 
   public roadNodeArr: any;
   public player: any;

@@ -1,6 +1,6 @@
 import Game from "./Game";
 
-let kuangAlpha = 0.01
+let kuangAlpha = 0.03
 let kuangLineColor = 0xcccccc
 let stageWidth = document.documentElement.clientWidth || document.body.clientWidth
 let stageHeight = document.documentElement.clientHeight || document.body.clientHeight

@@ -1,3 +1,4 @@
+declare var window: Window;
 declare var foo: number;
 declare module '*.svg'
 declare module '*.png'

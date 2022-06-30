@@ -1,22 +1,48 @@
 const path = require('path')
-const webpack = require('webpack')
-const HOST = require('ip').address()
-const PORT = process.env.PORT && Number(process.env.PORT)
-const merge = require('webpack-merge')
-const baseWebpackConfig = require('./webpack.config.base')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
-module.exports = merge(baseWebpackConfig,{
+module.exports = {
   mode: 'development',
-  devtool: 'cheap-module-eval-source-map',
-  plugins: [
-    // new webpack.HotModuleReplacementPlugin()
-  ],
+  entry: {
+    index: './src/main.ts',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  devtool: 'inline-source-map',
   devServer: {
-    contentBase: path.resolve(__dirname, 'dist'),
-    host: HOST || '0.0.0.0',
-    port: PORT || 8086,
-    open: false,
-    openPage: '?vkdev=1&status=1',
+    static: "./",
+    compress: true,
+    port: 9000,
+    hot: true
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './index.html',
+      filename: 'index.html',
+      inject: 'body',
+      minify: {
+        removeComments: false,
+        collapseWhitespace: false,
+        removeAttributeQuotes: false
+      }
+    }),
+  ],
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
+  },
+  resolve: {
+    alias: {
+      '@': path.join(__dirname, './')
+    },
+    extensions: ['.ts', '.js', '.json']
   }
-})
-
+};
