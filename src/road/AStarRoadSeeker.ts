@@ -201,8 +201,7 @@ export default class AStarRoadSeeker {
 
       if (this._currentNode == this._targetNode) {
         console.log("找到目标计算步骤为：", step);
-        return this.getPath2();
-        // return this.getPath();
+        return this.getPath();
       } else {
         this._closelist.push(this._currentNode);
       }
@@ -278,8 +277,6 @@ export default class AStarRoadSeeker {
         i--;
       }
     }
-
-    //return nodeArr;
 
     //第二阶段优化：对不在横，竖，正斜的格子进行优化
     for (var i: number = 0; i < nodeArr.length - 2; i++) {
@@ -518,18 +515,18 @@ export default class AStarRoadSeeker {
    *
    */
   private searchRoundNodes(node: RoadNode): void {
-    console.log('searchRoundNodes:', node.toString2())
+    // console.log('searchRoundNodes:', node.toString2())
 
     this._round.forEach(([r, c, g], idx) => {
       var cx: number = node.cx + r;
       var cy: number = node.cy + c;
       var node2: RoadNode = this._roadNodes[cx + "_" + cy] as RoadNode
-      console.log(`i:`, idx, node2)
+      // console.log(`i:`, idx, node2)
       if (node2 != null && node2 != this._startNode && node2.value !== 1 && !this.isInCloseList(node2) && !this.isInCorner(node2)) {
         this.setNodeF(node2);
       }
     })
-    console.log('\n')
+    // console.log('\n')
   }
 
   /**
@@ -561,7 +558,7 @@ export default class AStarRoadSeeker {
     node.f = node.g + node.h;
     node.parent = this._currentNode;
 
-    console.log('setNodeF:', node.toString2())
+    // console.log('setNodeF:', node.toString2())
 
     // this._openlist.push(node);
   }

@@ -97,8 +97,7 @@ export default class RoadNode {
 
   public set f(value: number) {
     this._f = value;
-    if (this.ele)
-      this.ele.resetText()
+    this.ele && this.ele.resetText()
   }
 
   public get g(): number {

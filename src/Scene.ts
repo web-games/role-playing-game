@@ -14,6 +14,9 @@ export default class Scene extends PIXI.Container {
   public player: any;
   public currentRoadNode: any;
 
+  startNode: any;
+  targetNode: any;
+
   constructor() {
     super()
     this.init()
@@ -35,6 +38,9 @@ export default class Scene extends PIXI.Container {
         let distance = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
         // console.log(x1, y1, x2, y2, 'distance:', distance)
         if (distance < 1) {
+          this.startNode && this.startNode.resetBg();
+          this.targetNode && this.targetNode.resetBg();
+
           let {x: targetX, y: targetY} = event.data.getLocalPosition(tiledMapLayer.parent)
           // console.log(targetX, targetY);
 
@@ -47,6 +53,10 @@ export default class Scene extends PIXI.Container {
 
           var roadNodeArr: RoadNode[] = this._roadSeeker.seekPath2(startNode, targetNode);
           console.log(roadNodeArr)
+          if (roadNodeArr.length >= 2) {
+            this.startNode = roadNodeArr[0].ele.setBGColor(0xffff00, 0.5)
+            this.targetNode = roadNodeArr[roadNodeArr.length - 1].ele.setBGColor(0xffffff, 0.5)
+          }
 
           let tml = window["TweenMax"].getTweensOf(this.player)
           tml && tml.length && tml[0].kill()
@@ -132,6 +142,7 @@ export default class Scene extends PIXI.Container {
 class MapNodeView extends PIXI.Container {
   node: any;
   htxt: any;
+  bg: any;
 
   constructor(node) {
     super()
@@ -153,6 +164,7 @@ class MapNodeView extends PIXI.Container {
     graphics.closePath()
     graphics.endFill()
     this.addChild(graphics)
+    this.bg = graphics;
 
     const graphics2 = new PIXI.Graphics()
     graphics2.beginFill(0xffffff, 1);
@@ -168,13 +180,13 @@ class MapNodeView extends PIXI.Container {
     // text3.x = -(w / 2) + 7
     // text3.y = 2
     // text3['angle'] = 31;
-    //
-    // let text2 = new PIXI.Text(`${dx}/${dy}`, style)
-    // this.addChild(text2)
-    // text2.anchor.set(0.5, 0.5)
-    // text2.x = 0
-    // text2.y = 0
-    // text2['angle'] = 31;
+
+    let text2 = new PIXI.Text(`${dx}/${dy}`, style)
+    this.addChild(text2)
+    text2.anchor.set(0.5, 0.5)
+    text2.x = 0
+    text2.y = 0
+    text2['angle'] = 31;
 
     let text = new PIXI.Text(`${cx}/${cy}`, style)
     text.anchor.set(1, 0);
@@ -191,11 +203,31 @@ class MapNodeView extends PIXI.Container {
     htxt['angle'] = 31;
     htxt.visible = false;
     this.htxt = htxt;
-
   }
 
   resetText() {
     this.htxt.visible = true;
     this.htxt.text = `${this.node.g},${this.node.h},${this.node.f}`;
+  }
+
+  setBGColor(color, alpha) {
+    let w = mapData.nodeWidth
+    let h = mapData.nodeHeight
+    let graphics = this.bg;
+    graphics.clear();
+    graphics.beginFill(color, alpha)
+    graphics.lineStyle(1, 0xffffff, 0.3)
+    graphics.moveTo(-w / 2, 0)
+    graphics.lineTo(0, -h / 2)
+    graphics.lineTo(w / 2, 0)
+    graphics.lineTo(0, h / 2)
+    graphics.closePath()
+    graphics.endFill()
+    return this;
+  }
+
+  resetBg() {
+    let {value} = this.node;
+    this.setBGColor(value === 0 ? 0x00000 : 0xFF0000, value === 0 ? 0.5 : 1)
   }
 }
