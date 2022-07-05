@@ -227,19 +227,6 @@ export default class AStarRoadSeeker {
     return 0;
   }
 
-  private getPath2(): Array<RoadNode> {
-    var nodeArr: Array<RoadNode> = [];
-    var node: RoadNode = this._targetNode;
-
-    while (node != this._startNode) {
-      nodeArr.unshift(node);
-      node = node.parent;
-    }
-
-    nodeArr.unshift(this._startNode);
-    return nodeArr;
-  }
-
   /**
    *获得最终寻路到的所有路点
    * @return
@@ -277,6 +264,8 @@ export default class AStarRoadSeeker {
         i--;
       }
     }
+
+    // return nodeArr
 
     //第二阶段优化：对不在横，竖，正斜的格子进行优化
     for (var i: number = 0; i < nodeArr.length - 2; i++) {

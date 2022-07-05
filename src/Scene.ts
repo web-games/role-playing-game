@@ -3,6 +3,7 @@ import MapRoadUtils from "./road/MapRoadUtils";
 import AStarRoadSeeker from "./road/AStarRoadSeeker";
 import RoadNode from "./road/RoadNode";
 import Point from "./road/Point";
+import Player from "./Player";
 
 console.log('mapdata8:', mapData)
 
@@ -11,8 +12,7 @@ export default class Scene extends PIXI.Container {
   private _roadSeeker: any;
 
   public roadNodeArr: any;
-  public player: any;
-  public currentRoadNode: any;
+  public player: Player;
 
   startNode: any;
   targetNode: any;
@@ -49,12 +49,12 @@ export default class Scene extends PIXI.Container {
 
           var startNode: RoadNode = this._roadDic[startPoint.x + "_" + startPoint.y];
           var targetNode: RoadNode = this._roadDic[targetPoint.x + "_" + targetPoint.y];
-          // console.log(startNode, targetNode)
+          console.log(startNode, targetNode)
 
           var roadNodeArr: RoadNode[] = this._roadSeeker.seekPath2(startNode, targetNode);
           console.log(roadNodeArr)
           if (roadNodeArr.length >= 2) {
-            this.startNode = roadNodeArr[0].ele.setBGColor(0xffff00, 0.5)
+            this.startNode = roadNodeArr[0].ele.setBGColor(0x000000, 0.5)
             this.targetNode = roadNodeArr[roadNodeArr.length - 1].ele.setBGColor(0xffffff, 0.5)
           }
 
@@ -69,11 +69,8 @@ export default class Scene extends PIXI.Container {
       start = null
     })
 
-    this.player = PIXI.Sprite.from('static/assets/bunny.png');
-    this.addChild(this.player)
-    this.player.x = 50;
-    this.player.y = 25;
-    this.player.anchor.set(0.5);
+    this.player = new Player();
+    this.addChild(this.player);
 
     MapRoadUtils.instance.updateMapInfo(mapData.mapWidth, mapData.mapHeight, mapData.nodeWidth, mapData.nodeHeight, mapData.type);
 
@@ -123,11 +120,14 @@ export default class Scene extends PIXI.Container {
       let targetRoadNode = this.roadNodeArr.shift()
       console.log(targetRoadNode.toString())
 
-      let dx = Math.abs(this.player.x - targetRoadNode.px)
-      let dy = Math.abs(this.player.y - targetRoadNode.py)
+      let dx = targetRoadNode.px - this.player.x
+      let dy = targetRoadNode.py - this.player.y
+
+      let angle = 180 / Math.PI * Math.atan2(dy, dx);
+      this.player.play(angle);
 
       let distance = Math.sqrt(dx * dx + dy * dy);
-      let duration = (distance / 100) * 1;
+      let duration = (Math.abs(distance) / 100) * 1;
 
       window["TweenMax"].to(this.player, duration, {
         x: targetRoadNode.px,
@@ -135,6 +135,8 @@ export default class Scene extends PIXI.Container {
         ease: window["Power0"].easeNone,
         onComplete: this.move.bind(this)
       })
+    } else {
+      this.player.stop();
     }
   }
 }
@@ -154,17 +156,9 @@ class MapNodeView extends PIXI.Container {
     let w = mapData.nodeWidth
     let h = mapData.nodeHeight
 
-    var graphics = new PIXI.Graphics()
-    graphics.beginFill(value === 0 ? 0x00000 : 0xFF0000, value === 0 ? 0.5 : 1)
-    graphics.lineStyle(1, 0xffffff, 0.3)
-    graphics.moveTo(-w / 2, 0)
-    graphics.lineTo(0, -h / 2)
-    graphics.lineTo(w / 2, 0)
-    graphics.lineTo(0, h / 2)
-    graphics.closePath()
-    graphics.endFill()
-    this.addChild(graphics)
-    this.bg = graphics;
+    this.bg = new PIXI.Graphics();
+    this.addChild(this.bg)
+    this.setBGColor(value === 0 ? 0x008000 : 0xFF0000, value === 0 ? 0.5 : 1)
 
     const graphics2 = new PIXI.Graphics()
     graphics2.beginFill(0xffffff, 1);
@@ -179,28 +173,28 @@ class MapNodeView extends PIXI.Container {
     // text3.anchor.set(0, 1)
     // text3.x = -(w / 2) + 7
     // text3.y = 2
-    // text3['angle'] = 31;
+    // text3['angle'] = 26.56505117707799;
 
     let text2 = new PIXI.Text(`${dx}/${dy}`, style)
     this.addChild(text2)
     text2.anchor.set(0.5, 0.5)
     text2.x = 0
     text2.y = 0
-    text2['angle'] = 31;
+    text2['angle'] = 26.56505117707799;
 
     let text = new PIXI.Text(`${cx}/${cy}`, style)
     text.anchor.set(1, 0);
     this.addChild(text)
     text.x = (w / 2) - 3
     text.y = -3
-    text['angle'] = 31;
+    text['angle'] = 26.56505117707799;
 
     let htxt = new PIXI.Text(`${cx}/${cy}`, style)
     this.addChild(htxt)
     htxt.anchor.set(0, 1)
     htxt.x = -(w / 2) + 7
     htxt.y = 2
-    htxt['angle'] = 31;
+    htxt['angle'] = 26.56505117707799;
     htxt.visible = false;
     this.htxt = htxt;
   }
@@ -228,6 +222,6 @@ class MapNodeView extends PIXI.Container {
 
   resetBg() {
     let {value} = this.node;
-    this.setBGColor(value === 0 ? 0x00000 : 0xFF0000, value === 0 ? 0.5 : 1)
+    this.setBGColor(value === 0 ? 0x008000 : 0xFF0000, value === 0 ? 0.5 : 1)
   }
 }
