@@ -4,10 +4,15 @@ let stageWidth = document.documentElement.clientWidth || document.body.clientWid
 let stageHeight = document.documentElement.clientHeight || document.body.clientHeight
 let mapWidth = mapData.mapWidth;
 let mapHeight = mapData.mapHeight;
+let nodeWidth = mapData.nodeWidth;
+let nodeHeight = mapData.nodeHeight;
+
 
 export {
   stageWidth,
   stageHeight,
   mapWidth,
-  mapHeight
+  mapHeight,
+  nodeWidth,
+  nodeHeight
 }

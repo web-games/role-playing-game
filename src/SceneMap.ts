@@ -1,12 +1,10 @@
-import mapData from './mapData.json';
+// @ts-nocheck
+import {mapHeight, mapWidth, nodeHeight, nodeWidth} from "./config";
 
 export default class SceneMap extends PIXI.Container {
   constructor() {
     super()
-    this.init()
-  }
 
-  init() {
     let start = null;
     this.interactive = true
     this.on('pointerdown', (event) => {
@@ -25,6 +23,56 @@ export default class SceneMap extends PIXI.Container {
       }
       start = null
     })
+
+    // 显示模糊小地图
+    let smallMap = new PIXI.Sprite.from('./static/assets/s1/s1_min.jpg')
+    this.addChild(smallMap)
+    smallMap.scale.set(mapWidth / smallMap.texture.width, mapHeight / smallMap.texture.height)
+
+    // 显示清晰大地图
+    this._waitLoadZone = []
+    this._sliceRows = 3 * 2
+    this._sliceCols = 4 * 2
+    this._sliceWidth = 720 / 2
+    this._sliceHeight = 480 / 2
+
+    for (let r = 0; r < this._sliceRows; r++) {
+      for (let c = 0; c < this._sliceCols; c++) {
+        let key = "s1_" + r + "_" + (c + 1) + ".png"
+        this._waitLoadZone.push([key, r, c])
+      }
+    }
+
+    this.load();
+  }
+
+  load() {
+    // console.log("this._waitLoadZone.length: ", this._waitLoadZone.length)
+    if (this._waitLoadZone.length) {
+      let obj = this._waitLoadZone.shift()
+      let key = obj[0]
+      let row = obj[1]
+      let col = obj[2]
+      let url = "./static/assets/s1/360*240/" + key
+
+      var loader = new PIXI.Loader()
+      loader.add(url)
+
+      loader.once('complete', () => {
+        this.drawBGMap(url, row, col)
+        this.load()
+      })
+      loader.load()
+    }
+  }
+
+  drawBGMap(key, row, col) {
+    let x = (this._sliceWidth * col)
+    let y = (this._sliceHeight * row)
+
+    let tileMap = new PIXI.Sprite.from(key)
+    this.addChildAt(tileMap, 1)
+    tileMap.position.set(x, y)
   }
 
   drawNode(node) {
@@ -46,8 +94,8 @@ class MapNodeView extends PIXI.Container {
     let {cx, cy, dx, dy, px, py, value} = node;
     this.x = px
     this.y = py
-    let w = mapData.nodeWidth
-    let h = mapData.nodeHeight
+    let w = nodeWidth
+    let h = nodeHeight
 
     this.bg = new PIXI.Graphics();
     this.addChild(this.bg)
@@ -98,8 +146,8 @@ class MapNodeView extends PIXI.Container {
   }
 
   setBGColor(color, alpha) {
-    let w = mapData.nodeWidth
-    let h = mapData.nodeHeight
+    let w = nodeWidth
+    let h = nodeHeight
     let graphics = this.bg;
     graphics.clear();
     graphics.beginFill(color, alpha)
