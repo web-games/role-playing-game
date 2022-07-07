@@ -31,10 +31,10 @@ export default class SceneMap extends PIXI.Container {
 
     // 显示清晰大地图
     this._waitLoadZone = []
-    this._sliceRows = 3 * 2
-    this._sliceCols = 4 * 2
-    this._sliceWidth = 720 / 2
-    this._sliceHeight = 480 / 2
+    this._sliceRows = 6
+    this._sliceCols = 8
+    this._sliceWidth = 360
+    this._sliceHeight = 240
 
     for (let r = 0; r < this._sliceRows; r++) {
       for (let c = 0; c < this._sliceCols; c++) {

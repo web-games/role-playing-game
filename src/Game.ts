@@ -1,5 +1,7 @@
+// @ts-nocheck
 import {mapHeight, mapWidth, stageHeight, stageWidth} from "./config";
 import Scene from './Scene'
+import ControlBar from "./ControlBar";
 
 export default class Game extends PIXI.Application {
 
@@ -9,24 +11,59 @@ export default class Game extends PIXI.Application {
   }
 
   init() {
-    document.body["prepend"](this.view)
+    document.body.prepend(this.view)
 
-    let scene = new Scene();
-    this.stage.addChild(scene);
+    let minScale = Math.max(stageWidth / mapWidth, stageHeight / mapHeight)
+    let maxScale = 2
+    let initScale = 1
+
+    let scene = new Scene()
+    this.stage.addChild(scene)
+    scene.scale.set(initScale)
+
+    let bar = new ControlBar({
+      ratio: scene.scale.x,
+      minScale,
+      maxScale,
+      update(val) {
+        let previousValue = zoom.value
+        zoom.value = val
+        zoom.calculatePosition(previousValue, zoom.value, stageWidth / 2, stageHeight / 2)
+
+        scroll.contentWidth = mapWidth * val
+        scroll.contentHeight = mapHeight * val
+      }
+    })
+    this.stage.addChild(bar)
+    bar.x = stageWidth - 120
+    bar.y = 10
 
     let drag = new Drag({
       ele: scene,
       width: mapWidth,
       height: mapHeight
     })
-    //
-    // let scroll = new Scroll({
-    //   content: scene,
-    //   maskWidth: stageWidth,
-    //   maskHeight: stageHeight,
-    //   contentWidth: mapWidth,
-    //   contentHeight: mapHeight
-    // })
+
+    let scroll = new Scroll({
+      content: scene,
+      maskWidth: stageWidth,
+      maskHeight: stageHeight,
+      contentWidth: mapWidth * initScale,
+      contentHeight: mapHeight * initScale
+    })
+
+    let zoom = new Zoom({
+      ele: scene,
+      value: initScale,
+      minZoom: minScale,
+      maxZoom: maxScale,
+      update(val) {
+        bar.ratio = val
+
+        scroll.contentWidth = mapWidth * val
+        scroll.contentHeight = mapHeight * val
+      }
+    })
   }
 }
 
@@ -232,5 +269,125 @@ class Scroll {
   // 最大滚动距离 纵向
   get maxScrollTop() {
     return this._maskHeight - this._contentHeight
+  }
+}
+
+class Zoom {
+
+  static defaultConfig = {
+    x: 0,
+    y: 0,
+    value: 1,
+    speed: 0.2,
+    minScale: 0.5,
+    maxScale: 2,
+  }
+
+  constructor(config) {
+    let {ele, value} = this.$config = Object.assign({}, Zoom.defaultConfig, config)
+
+    this.ele = ele
+    this.value = value
+
+    this.onMouseWheel = this.onMouseWheel.bind(this)
+    document.addEventListener('mousewheel', this.onMouseWheel, {passive: false})
+  }
+
+  onMouseWheel(event) {
+    this.zoom(event)
+    event.preventDefault()
+  }
+
+  zoom(e) {
+    let {speed, minZoom, maxZoom} = this.$config
+
+    // 当前缩放值
+    let currentZoom = this.value
+    // 目标缩放值
+    let targetZoom = e.wheelDelta <= 0
+      ? currentZoom - speed
+      : currentZoom + speed
+
+    if (targetZoom >= maxZoom) {
+      targetZoom = maxZoom
+    } else if (targetZoom <= minZoom) {
+      targetZoom = minZoom
+    }
+
+    this.value = targetZoom
+
+    this.$config.update && this.$config.update(this.value)
+
+    this.calculatePosition(currentZoom, targetZoom, e.clientX, e.clientY)
+  }
+
+  /**
+   * 计算缩放后的坐标
+   *
+   * @param currentZoom 当前缩放值
+   * @param targetZoom 目标缩放值
+   * @param mouseX 鼠标点x坐标
+   * @param mouseY 鼠标点y坐标
+   * */
+  calculatePosition(currentZoom, targetZoom, mouseX, mouseY) {
+    // 计算缩放比例
+    let rate = targetZoom / currentZoom
+
+    // 先计算相对于图片中心点缩放后的坐标
+    this.x *= rate
+    this.y *= rate
+
+    // 再计算鼠标点在图片中的偏移量(放大图片偏移量是正的，图片缩小偏移量是负的)，然后图片坐标减去偏移量
+    this.x -= (rate - 1) * mouseX
+    this.y -= (rate - 1) * mouseY
+
+    // this.x = (this.x * rate) - (rate - 1) * mouseX
+    // this.y = (this.y * rate) - (rate - 1) * mouseY
+  }
+
+  set value(val) {
+    val = val > this.$config.maxZoom
+      ? this.$config.maxZoom
+      : val < this.$config.minZoom
+        ? this.$config.minZoom
+        : val
+
+    this.ele.scale.set(val)
+  }
+
+  get value() {
+    return this.ele.scale.x
+  }
+
+  set x(x) {
+    x = (x >= 0
+      ? 0
+      : x <= -(mapWidth * this.value - stageWidth)
+        ? -(mapWidth * this.value - stageWidth)
+        : x)
+
+    this.ele.x = x
+  }
+
+  get x() {
+    return this.ele.x
+  }
+
+  set y(y) {
+    y = (y >= 0
+      ? 0
+      : y <= -(mapHeight * this.value - stageHeight)
+        ? -(mapHeight * this.value - stageHeight)
+        : y)
+
+    this.ele.y = y
+  }
+
+  get y() {
+    return this.ele.y
+  }
+
+  destroy() {
+    document.removeEventListener('mousewheel', this.onMouseWheel)
   }
 }
