@@ -1,7 +1,0 @@
-/*!
- * pixi-extra-filters - v1.1.1
- * Compiled Sat Oct 08 2016 20:50:10 GMT+0300 (RTZ 2 (зима))
- *
- * pixi-extra-filters is licensed under the MIT License.
- * http://www.opensource.org/licenses/mit-license
- */

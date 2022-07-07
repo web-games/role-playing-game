@@ -24,26 +24,32 @@ export default class SceneMap extends PIXI.Container {
       start = null
     })
 
-    // 显示模糊小地图
-    let smallMap = new PIXI.Sprite.from('./static/assets/s1/s1_min.jpg')
-    this.addChild(smallMap)
-    smallMap.scale.set(mapWidth / smallMap.texture.width, mapHeight / smallMap.texture.height)
+    var loader = new PIXI.Loader()
+    loader.add('./static/assets/s1/s1_min.jpg')
+    loader.once('complete', () => {
+      // 显示模糊小地图
+      let smallMap = new PIXI.Sprite.from('./static/assets/s1/s1_min.jpg')
+      this.addChildAt(smallMap, 0)
+      smallMap.scale.set(mapWidth / smallMap.texture.width, mapHeight / smallMap.texture.height)
 
-    // 显示清晰大地图
-    this._waitLoadZone = []
-    this._sliceRows = 6
-    this._sliceCols = 8
-    this._sliceWidth = 360
-    this._sliceHeight = 240
+      // 显示清晰大地图
+      this._waitLoadZone = []
+      this._sliceRows = 6
+      this._sliceCols = 8
+      this._sliceWidth = 360
+      this._sliceHeight = 240
 
-    for (let r = 0; r < this._sliceRows; r++) {
-      for (let c = 0; c < this._sliceCols; c++) {
-        let key = "s1_" + r + "_" + (c + 1) + ".png"
-        this._waitLoadZone.push([key, r, c])
+      for (let r = 0; r < this._sliceRows; r++) {
+        for (let c = 0; c < this._sliceCols; c++) {
+          let key = "s1_" + r + "_" + (c + 1) + ".png"
+          this._waitLoadZone.push([key, r, c])
+        }
       }
-    }
 
-    this.load();
+      this.load();
+    })
+
+    loader.load()
   }
 
   load() {
