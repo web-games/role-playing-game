@@ -41,7 +41,10 @@ export default class Game extends PIXI.Application {
     let drag = new Drag({
       ele: scene,
       width: mapWidth,
-      height: mapHeight
+      height: mapHeight,
+      update: () => {
+        scene.sceneMap.update()
+      }
     })
 
     let scroll = new Scroll({
@@ -68,13 +71,9 @@ export default class Game extends PIXI.Application {
 }
 
 class Drag {
-  config
-  ele
-  dragging
-  offset
 
-  constructor(config) {
-    let {ele} = this.config = config
+  constructor(options) {
+    let {ele} = this.options = options
 
     this.ele = ele
     this.ele.interactive = true
@@ -120,6 +119,8 @@ class Drag {
 
       this.ele.x = x
       this.ele.y = y
+
+      this.options.update && this.options.update();
     }
   }
 }

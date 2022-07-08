@@ -9,6 +9,10 @@ let mapHeight = 1440;
 let nodeWidth = mapData.nodeWidth;
 let nodeHeight = mapData.nodeHeight;
 
+let chunkWidth = 180;
+let chunkHeight = 120;
+let chunkRows = 12;
+let chunkCols = 16;
 
 export {
   stageWidth,
@@ -16,5 +20,9 @@ export {
   mapWidth,
   mapHeight,
   nodeWidth,
-  nodeHeight
+  nodeHeight,
+  chunkWidth,
+  chunkHeight,
+  chunkRows,
+  chunkCols,
 }

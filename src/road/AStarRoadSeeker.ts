@@ -81,7 +81,7 @@ export default class AStarRoadSeeker {
   public resetText() {
     for (let s in this._roadNodes) {
       let node = this._roadNodes[s];
-      node.ele.htxt.visible = false;
+      node.ele && node.ele.htxt && (node.ele.htxt.visible = false);
     }
   }
 

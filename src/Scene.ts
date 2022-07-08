@@ -21,10 +21,6 @@ export default class Scene extends PIXI.Container {
 
   constructor() {
     super()
-    this.init()
-  }
-
-  init() {
     this.sceneMap = new SceneMap();
     this.addChild(this.sceneMap);
 
