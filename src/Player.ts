@@ -1,3 +1,7 @@
+// @ts-ignore
+
+import {nodeHeight, nodeWidth} from './config'
+
 export default class Player extends PIXI.Container {
   public player: any;
   public startFrame: number;
@@ -5,19 +9,7 @@ export default class Player extends PIXI.Container {
 
   constructor() {
     super()
-    // @ts-ignore
-    var loader = new PIXI.Loader()
-    loader.add('spritesheet', './static/assets/mc.json')
-    loader.once('complete', this.onLoadComplete.bind(this))
-    loader.load()
 
-    /*let arr = [180, 225, 270, 315, 0, 45, 90, 135]
-    arr.forEach((val => {
-      console.log(val + (45 / 2), val - (45 / 2));
-    }))*/
-  }
-
-  onLoadComplete() {
     let explosionTextures = []
     for (let i = 1; i <= 64; i++) {
       const texture = PIXI.Texture.from(`Explosion_Sequence_A ${i}.png`)
@@ -42,14 +34,16 @@ export default class Player extends PIXI.Container {
     // player.animationSpeed = 0.01
     this.addChild(player)
 
-    this.x = 350;
-    this.y = 125;
-
     const graphics = new PIXI.Graphics()
     graphics.beginFill(0xDE3249)
     graphics.drawRect(0, 0, 5, 5)
     graphics.endFill()
     this.addChild(graphics)
+  }
+
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   play(angle) {

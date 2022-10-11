@@ -1,18 +1,26 @@
 // @ts-nocheck
-import {mapHeight, mapWidth, stageHeight, stageWidth} from "./config";
+import {mapHeight, mapWidth, stageHeight, stageWidth} from './config';
 import Scene from './Scene'
-import ControlBar from "./ControlBar";
+import ControlBar from './ControlBar';
 
 export default class Game extends PIXI.Application {
 
   constructor(config = {}) {
     super(config)
-    this.init()
-  }
-
-  init() {
     document.body.prepend(this.view)
 
+    var loader = new PIXI.Loader()
+    loader.add('spritesheet', './static/assets/mc.json')
+    loader.add([
+      './static/assets/s2/s2_min.jpg',
+    ])
+    loader.once('complete', () => {
+      this.init()
+    })
+    loader.load()
+  }
+
+  async init() {
     let minScale = Math.max(stageWidth / mapWidth, stageHeight / mapHeight)
     let maxScale = 2
     let initScale = 1
@@ -67,6 +75,8 @@ export default class Game extends PIXI.Application {
         scroll.contentHeight = mapHeight * val
       }
     })
+
+    scene.sceneMap.update()
   }
 }
 
@@ -149,7 +159,7 @@ class Scroll {
   }
 
   onPointerDownListener() {
-    let tw = window["TweenMax"].getTweensOf(this._content)
+    let tw = window['TweenMax'].getTweensOf(this._content)
     tw.length && tw[0].kill()
 
     this._start = {
@@ -158,8 +168,8 @@ class Scroll {
       y: this._content.y
     }
 
-    this._content.on("pointerup", this.onPointerUpListener, this)
-    this._content.on("pointerout", this.onPointerOutListener, this)
+    this._content.on('pointerup', this.onPointerUpListener, this)
+    this._content.on('pointerout', this.onPointerOutListener, this)
   }
 
   onPointerUpListener() {
@@ -179,17 +189,17 @@ class Scroll {
       let vars = {
         x: newX,
         y: newY,
-        ease: window["Power2"].easeOut,
+        ease: window['Power2'].easeOut,
         onUpdate: () => {
         },
         onComplete: () => {
         }
       }
-      window["TweenMax"].to(this._content, time / 1000, vars)
+      window['TweenMax'].to(this._content, time / 1000, vars)
     }
 
-    this._content.off("pointerup", this.onPointerUpListener, this)
-    this._content.off("pointerout", this.onPointerOutListener, this)
+    this._content.off('pointerup', this.onPointerUpListener, this)
+    this._content.off('pointerout', this.onPointerOutListener, this)
   }
 
   onPointerOutListener() {

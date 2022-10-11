@@ -5,12 +5,18 @@
  */
 export default class RoadNode {
 
-  private _px: number;//像素坐标x轴
-  private _py: number;//像素坐标y轴
-  private _cx: number;//世界坐标x轴
-  private _cy: number;//世界坐标y轴
+  // 格子"地图"坐标
   private _dx: number;//直角坐标x轴
   private _dy: number;//直角坐标y轴
+
+  // 格子"像素"坐标
+  private _px: number;//像素坐标x轴
+  private _py: number;//像素坐标y轴
+
+  // 格子"A星寻路"坐标
+  private _cx: number;//世界坐标x轴
+  private _cy: number;//世界坐标y轴
+
   private _value: number = 0;//节点的值
   private _f: number = 0; //路点的f值
   private _g: number = 0; //路点的g值
@@ -23,16 +29,16 @@ export default class RoadNode {
   }
 
   public toString2(): String {
-    return "路点世界坐标：（" + this._cx + "," + this._cy + "),  " +
+    return '路点世界坐标：（' + this._cx + ',' + this._cy + '),  ' +
       ` g=${this.g}` +
       ` h=${this.h}` +
       ` f=${this.f}`;
   }
 
   public toString(): String {
-    return "路点像素坐标：（" + this._px + "," + this._py + "),  " +
-      "路点世界坐标：（" + this._cx + "," + this._cy + "),  " +
-      "路点平面直角坐标：（" + this._dx + "," + this._dy + ")";
+    return '路点像素坐标：（' + this._px + ',' + this._py + '),  ' +
+      '路点世界坐标：（' + this._cx + ',' + this._cy + '),  ' +
+      '路点平面直角坐标：（' + this._dx + ',' + this._dy + ')';
   }
 
   public get px(): number {

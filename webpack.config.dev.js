@@ -9,6 +9,6 @@ module.exports = merge(baseWebpackConfig, {
     compress: true,
     port: 9000,
     hot: false,
-    liveReload: false,
+    liveReload: true,
   }
 })

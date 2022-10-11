@@ -1,12 +1,10 @@
-import mapData from './mapData.json';
-import MapRoadUtils from "./road/MapRoadUtils";
-import AStarRoadSeeker from "./road/AStarRoadSeeker";
-import RoadNode from "./road/RoadNode";
-import Point from "./road/Point";
-import Player from "./Player";
-import SceneMap from "./SceneMap";
-
-console.log('mapdata8:', mapData)
+import mapData from './config.json';
+import MapRoadUtils from './road/MapRoadUtils';
+import AStarRoadSeeker from './road/AStarRoadSeeker';
+import RoadNode from './road/RoadNode';
+import Point from './road/Point';
+import Player from './Player';
+import SceneMap from './SceneMap';
 
 export default class Scene extends PIXI.Container {
   private _roadDic: any = {};
@@ -23,31 +21,6 @@ export default class Scene extends PIXI.Container {
     super()
     this.sceneMap = new SceneMap();
     this.addChild(this.sceneMap);
-
-    this.player = new Player();
-    this.addChild(this.player);
-
-    MapRoadUtils.instance.updateMapInfo(mapData.mapWidth, mapData.mapHeight, mapData.nodeWidth, mapData.nodeHeight, mapData.type);
-
-    var len: number = mapData.roadDataArr.length;
-    var len2: number = mapData.roadDataArr[0].length;
-
-    for (var i: number = 0; i < len; i++) {
-      for (var j: number = 0; j < len2; j++) {
-
-        var node: RoadNode = MapRoadUtils.instance.getNodeByDerect(j, i);
-        node.value = mapData.roadDataArr[i][j];
-
-        this._roadDic[node.cx + "_" + node.cy] = node;
-
-        if (i < 200 && j < 200) {
-          this.sceneMap.drawNode(node);
-        }
-      }
-    }
-
-    this._roadSeeker = new AStarRoadSeeker(this._roadDic);
-
     this.sceneMap.on('click_map', (data) => {
       this.startNode && this.startNode.resetBg();
       this.targetNode && this.targetNode.resetBg();
@@ -59,8 +32,8 @@ export default class Scene extends PIXI.Container {
       var startPoint: Point = MapRoadUtils.instance.getWorldPointByPixel(this.player.x, this.player.y);
       var targetPoint: Point = MapRoadUtils.instance.getWorldPointByPixel(targetX, targetY);
 
-      var startNode: RoadNode = this._roadDic[startPoint.x + "_" + startPoint.y];
-      var targetNode: RoadNode = this._roadDic[targetPoint.x + "_" + targetPoint.y];
+      var startNode: RoadNode = this._roadDic[startPoint.x + '_' + startPoint.y];
+      var targetNode: RoadNode = this._roadDic[targetPoint.x + '_' + targetPoint.y];
       console.log(startNode, targetNode)
 
       var roadNodeArr: RoadNode[] = this._roadSeeker.seekPath2(startNode, targetNode);
@@ -70,13 +43,37 @@ export default class Scene extends PIXI.Container {
         this.targetNode = roadNodeArr[roadNodeArr.length - 1].ele.setBGColor(0xffffff, 0.5)
       }
 
-      let tml = window["TweenMax"].getTweensOf(this.player)
+      let tml = window['TweenMax'].getTweensOf(this.player)
       tml && tml.length && tml[0].kill()
 
       this.roadNodeArr = roadNodeArr
 
       this.move()
     })
+
+    this.player = new Player();
+    this.addChild(this.player);
+
+    MapRoadUtils.instance.updateMapInfo(mapData.mapWidth, mapData.mapHeight, mapData.nodeWidth, mapData.nodeHeight, mapData.type);
+
+    for (var i = 0; i < mapData.roadDataArr.length; i++) {
+      for (var j = 0; j < mapData.roadDataArr[0].length; j++) {
+
+        var node: RoadNode = MapRoadUtils.instance.getNodeByDerect(j, i);
+        node.value = mapData.roadDataArr[i][j];
+
+        this._roadDic[node.cx + '_' + node.cy] = node;
+
+        if (i < 200 && j < 200) {
+          this.sceneMap.drawNode(node);
+        }
+      }
+    }
+
+    this._roadSeeker = new AStarRoadSeeker(this._roadDic);
+
+    var node = MapRoadUtils.instance.getNodeByDerect(4, 9);
+    this.player.setPosition(node.px, node.py)
   }
 
   move() {
@@ -93,10 +90,10 @@ export default class Scene extends PIXI.Container {
       let distance = Math.sqrt(dx * dx + dy * dy);
       let duration = (Math.abs(distance) / 100) * 1;
 
-      window["TweenMax"].to(this.player, duration, {
+      window['TweenMax'].to(this.player, duration, {
         x: targetRoadNode.px,
         y: targetRoadNode.py,
-        ease: window["Power0"].easeNone,
+        ease: window['Power0'].easeNone,
         onComplete: this.move.bind(this)
       })
     } else {
